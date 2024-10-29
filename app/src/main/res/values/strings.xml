@@ -1,3 +1,120 @@
 <resources>
     <string name="app_name">Virgo</string>
+    <string-array name="provinces">
+        <item>Tất cả</item>
+        <item>Hà Nội</item>
+        <item>Hồ Chí Minh</item>
+        <item>Đà Nẵng</item>
+        <item>Hải Phòng</item>
+        <item>Cần Thơ</item>
+        <item>An Giang</item>
+        <item>Bà Rịa - Vũng Tàu</item>
+        <item>Bắc Giang</item>
+        <item>Bắc Kạn</item>
+        <item>Bạc Liêu</item>
+        <item>Bắc Ninh</item>
+        <item>Bến Tre</item>
+        <item>Bình Định</item>
+        <item>Bình Dương</item>
+        <item>Bình Phước</item>
+        <item>Bình Thuận</item>
+        <item>Cà Mau</item>
+        <item>Cao Bằng</item>
+        <item>Đắk Lắk</item>
+        <item>Đắk Nông</item>
+        <item>Điện Biên</item>
+        <item>Đồng Nai</item>
+        <item>Đồng Tháp</item>
+        <item>Gia Lai</item>
+        <item>Hà Giang</item>
+        <item>Hà Nam</item>
+        <item>Hà Tĩnh</item>
+        <item>Hải Dương</item>
+        <item>Hậu Giang</item>
+        <item>Hòa Bình</item>
+        <item>Hưng Yên</item>
+        <item>Khánh Hòa</item>
+        <item>Kiên Giang</item>
+        <item>Kon Tum</item>
+        <item>Lai Châu</item>
+        <item>Lâm Đồng</item>
+        <item>Lạng Sơn</item>
+        <item>Lào Cai</item>
+        <item>Long An</item>
+        <item>Nam Định</item>
+        <item>Nghệ An</item>
+        <item>Ninh Bình</item>
+        <item>Ninh Thuận</item>
+        <item>Phú Thọ</item>
+        <item>Phú Yên</item>
+        <item>Quảng Bình</item>
+        <item>Quảng Nam</item>
+        <item>Quảng Ngãi</item>
+        <item>Quảng Ninh</item>
+        <item>Quảng Trị</item>
+        <item>Sóc Trăng</item>
+        <item>Sơn La</item>
+        <item>Tây Ninh</item>
+        <item>Thái Bình</item>
+        <item>Thái Nguyên</item>
+        <item>Thanh Hóa</item>
+        <item>Thừa Thiên Huế</item>
+        <item>Tiền Giang</item>
+        <item>Trà Vinh</item>
+        <item>Tuyên Quang</item>
+        <item>Vĩnh Long</item>
+        <item>Vĩnh Phúc</item>
+        <item>Yên Bái</item>
+    </string-array>
+    <string-array name="medical_departments">
+        <item>Dinh dưỡng và Chế độ ăn uống</item>
+        <item>Tham vấn tâm lý</item>
+        <item>Khúc xạ nhãn khoa</item>
+        <item>Nội tổng quát</item>
+        <item>Ngoại thần kinh</item>
+        <item>Ngoại tổng quát</item>
+        <item>Tiêm chủng</item>
+        <item>Tiểu đường</item>
+        <item>Gây mê - Giảm đau</item>
+        <item>Nội thần kinh</item>
+        <item>Bệnh lý học</item>
+        <item>Lão khoa</item>
+        <item>Chẩn đoán hình ảnh</item>
+        <item>Miễn dịch học</item>
+        <item>Cơ - Xương - Khớp</item>
+        <item>Khoa học thể thao</item>
+        <item>Tâm lý</item>
+        <item>Vật lý trị liệu</item>
+        <item>Chỉnh hình</item>
+        <item>Thần kinh</item>
+        <item>Tâm thần</item>
+        <item>Huyết học</item>
+        <item>Ung thư - Ung bướu</item>
+        <item>Khoa phổi</item>
+        <item>Khoa tiết niệu</item>
+        <item>Khoa thận</item>
+        <item>Khoa thấp khớp</item>
+        <item>Khoa nội tiết</item>
+        <item>Đa khoa</item>
+        <item>Nha khoa</item>
+        <item>Da liễu</item>
+        <item>Nhãn khoa</item>
+        <item>Sản - Phụ khoa</item>
+        <item>Trị liệu thần kinh cột sống</item>
+        <item>Nhi khoa</item>
+        <item>Tai - Mũi - Họng</item>
+        <item>Khoa tiêu hóa</item>
+        <item>Tim mạch</item>
+        <item>Bệnh truyền nhiễm</item>
+        <item>Gan mật</item>
+        <item>Trị liệu hô hấp</item>
+        <item>Chuyên khoa chân</item>
+        <item>Y học phục hồi chức năng</item>
+        <item>Y học cổ truyền</item>
+        <item>Chuyên khoa béo phì</item>
+        <item>Y học giấc ngủ</item>
+        <item>Tình dục học</item>
+        <item>Phẫu thuật thẩm mỹ</item>
+        <item>Nam khoa</item>
+    </string-array>
 </resources>
