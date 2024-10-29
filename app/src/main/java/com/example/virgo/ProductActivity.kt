@@ -137,8 +137,7 @@ fun ProductDetailScreen() {
 
             // Action Buttons
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
                     onClick = { /* Handle find pharmacy click */ },
