@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,18 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,10 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-class SearchActivity {
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchApp() {
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
@@ -52,64 +43,198 @@ fun SearchApp() {
         "kem chống nắng", "siro ho", "Kẽm", "Dhc", "vitamin C", "vitamin A"
     )
 
+    val allProducts = listOf("A", "a", "B", "C", "D")
+    val allDiseases = listOf("Bệnh A", "Bệnh B", "Bệnh C")
+    val allArticles = listOf("Bài viết A", "Bài viết B", "Bài viết C")
+
+    val filteredRecent = recentSearches.filter { recent ->
+        recent.contains(searchText.text, ignoreCase = true) }
+
+    val filteredProducts = allProducts.filter { product ->
+        product.contains(searchText.text, ignoreCase = true)
+    }
+    val filteredDiseases = allDiseases.filter { disease ->
+        disease.contains(searchText.text, ignoreCase = true)
+    }
+    val filteredArticles = allArticles.filter { article ->
+        article.contains(searchText.text, ignoreCase = true)
+    }
+
+    var selectedTag by remember { mutableStateOf("Product") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Back button and search text field row
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
         ) {
-            // Smaller Back Button
             IconButton(
                 onClick = { /* Handle back press */ },
-                modifier = Modifier.size(20.dp) // Make back button smaller
+                modifier = Modifier.size(20.dp)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
             }
 
-            // Search Text Field taking more space
             SearchTextField(
                 searchText = searchText,
                 onSearchTextChange = { searchText = it },
                 onClearSearch = { searchText = TextFieldValue("") },
-                modifier = Modifier.weight(1f) // Makes search field fill remaining width
+                modifier = Modifier.weight(1f)
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Recent Searches Section
-        Text(
-            text = "Lịch sử tìm kiếm",
-            fontWeight = FontWeight.Bold,
-            fontSize = 15.sp
-        )
+        if (searchText.text.isEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Lịch sử tìm kiếm",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
 
-        TagSection(items = recentSearches)
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            if(recentSearches.isEmpty()){
+                Text(
+                    text = "Chưa có lịch sử",
+                    color = Color.Red
+                )
+            }
+            else{
+                val limitedRecentSearches = recentSearches.takeLast(5).reversed()
 
-        // Frequent Searches Section with full width
-        Text(
-            text = "Tra cứu hàng đầu",
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
-        )
+                limitedRecentSearches.forEach { search ->
+                    Text(
+                        text = search,
+                        color = Color.Blue,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+            }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        TagSection(items = frequentSearches, fullWidth = true)
+            Text(
+                text = "Tra cứu hàng đầu",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TagSection(items = frequentSearches, fullWidth = true)
+        } else {
+
+            Row(
+                modifier = Modifier.padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Tag(text = "Product") { selectedTag = "Product" }
+                Tag(text = "Disease") { selectedTag = "Disease" }
+                Tag(text = "Article") { selectedTag = "Article" }
+            }
+            Text(
+                text = "Lịch sử tìm kiếm",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+
+            if (filteredRecent.isNotEmpty()){
+                Spacer(modifier = Modifier.height(8.dp))
+                filteredRecent.forEach{recent ->
+                    Text(
+                        text = recent,
+                        color = Color.Blue,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )}
+            }
+            else{
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Chưa có lịch sử",
+                    color = Color.Red
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            when (selectedTag) {
+                "Product" -> {
+                    if (filteredProducts.isNotEmpty()) {
+                        Text(
+                            text = "Đề xuất sản phẩm:",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        filteredProducts.forEach { product ->
+                            Text(
+                                text = product,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = "Không tìm thấy sản phẩm nào.",
+                            color = Color.Red
+                        )
+                    }
+                }
+                "Disease" -> {
+                    if (filteredDiseases.isNotEmpty()) {
+                        Text(
+                            text = "Đề xuất bệnh lý:",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        // Display each disease on a new line
+                        filteredDiseases.forEach { disease ->
+                            Text(
+                                text = disease,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = "Không tìm thấy bệnh lý nào.",
+                            color = Color.Red
+                        )
+                    }
+                }
+                "Article" -> {
+                    if (filteredArticles.isNotEmpty()) {
+                        Text(
+                            text = "Đề xuất bài viết:",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                       
+                        filteredArticles.forEach { article ->
+                            Text(
+                                text = article,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = "Không tìm thấy bài viết nào.",
+                            color = Color.Red
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun TagSection(items: List<String>, fullWidth: Boolean = false) {
-    // Break items into rows to handle overflow and ensure they use available width
     var currentRowWidth = 0.dp
     val rowItems = mutableListOf<MutableList<String>>()
     var currentRow = mutableListOf<String>()
@@ -146,31 +271,6 @@ fun TagSection(items: List<String>, fullWidth: Boolean = false) {
 }
 
 @Composable
-fun SearchTextField(
-    searchText: TextFieldValue,
-    onSearchTextChange: (TextFieldValue) -> Unit,
-    onClearSearch: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TextField(
-        value = searchText,
-        onValueChange = onSearchTextChange,
-        placeholder = { Text("Tìm tên thuốc, bệnh lý, ...") },
-        singleLine = true,
-        trailingIcon = {
-            if (searchText.text.isNotEmpty()) {
-                IconButton(onClick = onClearSearch) {
-                    Icon(Icons.Default.Close, contentDescription = "Clear")
-                }
-            }
-        },
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 8.dp)
-    )
-}
-
-@Composable
 fun Tag(text: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
@@ -188,8 +288,36 @@ fun Tag(text: String, onClick: () -> Unit) {
     }
 }
 
+@Composable
+fun SearchTextField(
+    searchText: TextFieldValue,
+    onSearchTextChange: (TextFieldValue) -> Unit,
+    onClearSearch: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextField(
+        value = searchText,
+        onValueChange = onSearchTextChange,
+        placeholder = { Text("Tìm tên thuốc, bệnh lý") },
+        singleLine = true,
+        trailingIcon = {
+            if (searchText.text.isNotEmpty()) {
+                IconButton(onClick = onClearSearch) {
+                    Icon(Icons.Default.Close, contentDescription = "Clear")
+                }
+            }
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp)
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
-fun SearchPreview(){
+fun SearchPreview() {
     SearchApp()
 }
+
+
+
