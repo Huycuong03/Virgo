@@ -85,7 +85,7 @@ fun SearchApp() {
         Text(
             text = "Lịch sử tìm kiếm",
             fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
+            fontSize = 15.sp
         )
 
         Spacer(modifier = Modifier.height(8.dp))
