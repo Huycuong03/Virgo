@@ -1,4 +1,3 @@
-
 package com.example.btl
 
 import android.os.Bundle
@@ -9,18 +8,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-//import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.virgo.Greeting
 import com.example.virgo.R
 import com.example.virgo.ui.theme.VirgoTheme
 
@@ -43,10 +37,7 @@ class AppointmentActivity : ComponentActivity() {
         setContent {
             VirgoTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    MedicalSearchScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -56,73 +47,95 @@ class AppointmentActivity : ComponentActivity() {
 @Composable
 fun TopAppBarSection() {
     val provinces = stringArrayResource(id = R.array.provinces)
-
     var expanded by remember { mutableStateOf(false) }
-    var selectedProvince by remember { mutableStateOf(provinces[0]) }
+    var searchProvinceText by remember { mutableStateOf("") }
+    val filteredProvinces = provinces.filter { it.contains(searchProvinceText, ignoreCase = true) }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Column {
         Row(
             modifier = Modifier
-                .clickable { expanded = true } // Mở menu khi nhấn vào
-                .padding(horizontal = 8.dp),
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = selectedProvince,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Icon(
-                imageVector = Icons.Filled.ArrowDropDown,
-                contentDescription = "Mở danh sách tỉnh thành"
-            )
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            provinces.forEach { province ->
-                DropdownMenuItem(
-                    text = {Text(province)},
-                    onClick = {
-                        selectedProvince = province
-                        expanded = false
-                    }
+            Row(
+                modifier = Modifier
+                    .clickable { expanded = true }
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (searchProvinceText.isNotEmpty()) searchProvinceText else "Chọn tỉnh thành",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
                 )
+                Icon(
+                    imageVector = Icons.Filled.ArrowDropDown,
+                    contentDescription = "Mở danh sách tỉnh thành"
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            TextButton(onClick = { /* TODO: Implement cancel action */ }) {
+                Text("Hủy", color = Color(0xFF007BFF))
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        if (expanded) {
+            Column(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(8.dp)
+                    .fillMaxWidth()
+            ) {
+                TextField(
+                    value = searchProvinceText,
+                    onValueChange = { searchProvinceText = it },
+                    placeholder = { Text("Tìm kiếm tỉnh thành") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
 
-        TextButton(onClick = { /* TODO: Implement cancel action */ }) {
-            Text("Hủy", color = Color(0xFF007BFF))
+                LazyColumn {
+                    items(filteredProvinces) { province ->
+                        DropdownMenuItem(
+                            text = { Text(province) },
+                            onClick = {
+                                searchProvinceText = province
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
 fun MedicalSearchScreen(modifier: Modifier = Modifier) {
-    var isSearching by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
-    val categories = stringArrayResource(id = R.array.medical_departments).mapIndexed { index, category ->
-        category to when (index % 5) { // Placeholder icon mapping (use actual icon resources here)
-            0 -> R.drawable.image_holder
-            1 -> R.drawable.image_holder
-            2 -> R.drawable.image_holder
-            3 -> R.drawable.image_holder
-            else -> R.drawable.image_holder
-        }
-    }
-    val filteredCategories = if (searchText.isNotEmpty()) {
-        categories.filter { it.first.contains(searchText, ignoreCase = true) }
-    } else {
-        categories
+    var selectedCategory by remember { mutableStateOf("Chọn danh mục") }
+    var categoryExpanded by remember { mutableStateOf(false) }
+    val categories = stringArrayResource(id = R.array.medical_departments)
+
+    val medicalCenters = listOf(
+        "Trung tâm Xét nghiệm Y khoa Medilab Sài Gòn",
+        "Phòng khám Đa khoa Meccare",
+        "Phòng khám Đa khoa trực tuyến BS. Nguyễn Thanh Tâm",
+        "Trung tâm Tiêm chủng VNVC Quận 1",
+        "Trung tâm Chăm sóc sức khỏe European Wellness Việt Nam (EWH)",
+        "Bệnh viện Đa khoa Quốc tế Vinmec",
+        "Bệnh viện Đại học Y Dược TP.HCM",
+        "Bệnh viện Nhi Đồng 2",
+        "Phòng khám Đa khoa Medic Bình Dương",
+        "Trung tâm Kiểm soát Bệnh tật TP.HCM (HCDC)"
+    )
+
+    val filteredMedicalCenters = medicalCenters.filter {
+        it.contains(searchText, ignoreCase = true)
     }
 
     Column(
@@ -133,127 +146,112 @@ fun MedicalSearchScreen(modifier: Modifier = Modifier) {
     ) {
         TopAppBarSection()
         Spacer(modifier = Modifier.height(16.dp))
-        SearchBar(
-            searchText = searchText,
-            isSearching = isSearching,
-            onSearchBarClicked = {
-                isSearching = true
-                searchText = ""
-            },
-            onSearchIconClicked = {isSearching = true },
-            onCloseClicked = { isSearching = false; searchText = "" },
-            onTextChange = { searchText = it }
+        SearchBar(searchText = searchText, onTextChange = { searchText = it })
+        Spacer(modifier = Modifier.height(16.dp))
+        FilterBar(
+            selectedCategory = selectedCategory,
+            categories = categories,
+            expanded = categoryExpanded,
+            onExpand = { categoryExpanded = !categoryExpanded },
+            onCategorySelected = {
+                selectedCategory = it
+                categoryExpanded = false
+            }
         )
         Spacer(modifier = Modifier.height(16.dp))
-
-        if (isSearching) {
-            CategoryGrid(
-                categories = filteredCategories,
-                onCategoryClick = {
-                    searchText = it
-                    isSearching = false
-                }
-            )
-        } else {
-            Spacer(modifier = Modifier.height(16.dp))
-            ResultCount()
-            Spacer(modifier = Modifier.height(16.dp))
-            MedicalList()
-        }
+        ResultCount(filteredMedicalCenters.size)
+        Spacer(modifier = Modifier.height(16.dp))
+        MedicalList(filteredMedicalCenters)
     }
 }
 
 @Composable
-fun SearchBar(
-    searchText: String,
-    isSearching: Boolean,
-    onSearchBarClicked: () -> Unit,
-    onSearchIconClicked: () -> Unit,
-    onCloseClicked: () -> Unit,
-    onTextChange: (String) -> Unit
-) {
+fun SearchBar(searchText: String, onTextChange: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White, shape = CircleShape)
-            .padding(8.dp)
-            .clickable { onSearchBarClicked() },
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
             value = searchText,
-            onValueChange = {onTextChange(it)},
+            onValueChange = { onTextChange(it) },
             textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
-            modifier = Modifier.weight(1f) ,
-            placeholder = { Text("Nhập tên bệnh viện") },
+            modifier = Modifier.weight(1f),
+            placeholder = { Text("Nhập từ khóa tìm kiếm") },
         )
-        IconButton(onClick = { onSearchIconClicked() }) {
-            Icon(Icons.Filled.Search, contentDescription = "Search Icon")
+        Icon(Icons.Filled.Search, contentDescription = "Search Icon")
+    }
+}
+
+@Composable
+fun FilterBar(
+    selectedCategory: String,
+    categories: Array<String>,
+    expanded: Boolean,
+    onExpand: () -> Unit,
+    onCategorySelected: (String) -> Unit
+) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .clickable { onExpand() },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = selectedCategory,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = "Mở danh sách danh mục"
+            )
         }
-        if (isSearching) {
-            IconButton(onClick = { onCloseClicked() }) {
-                Icon(Icons.Filled.Close, contentDescription = "Close Icon")
+
+        if (expanded) {
+            Column(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(8.dp)
+                    .fillMaxWidth()
+            ) {
+                var categorySearchText by remember { mutableStateOf("") }
+                val filteredCategories = categories.filter { it.contains(categorySearchText, ignoreCase = true) }
+
+                TextField(
+                    value = categorySearchText,
+                    onValueChange = { categorySearchText = it },
+                    placeholder = { Text("Tìm kiếm danh mục") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
+
+                LazyColumn {
+                    items(filteredCategories) { category ->
+                        DropdownMenuItem(
+                            text = { Text(category) },
+                            onClick = { onCategorySelected(category) }
+                        )
+                    }
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CategoryGrid(categories: List<Pair<String, Int>>, onCategoryClick: (String) -> Unit) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        categories.forEach { category ->
-            CategoryItem(
-                name = category.first,
-                iconRes = category.second,
-                onClick = { onCategoryClick(category.first) }
-            )
-        }
-    }
-}
-
-@Composable
-fun CategoryItem(name: String, iconRes: Int, onClick: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(8.dp)
-            .clickable { onClick() }
-    ) {
-        Card(
-            shape = CircleShape,
-            modifier = Modifier.size(80.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F5FB)),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 6.dp
-            ),
-        ) {
-            Image(
-                painter = painterResource(id = iconRes),
-                contentDescription = name,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = name, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-    }
-}
-
-
-
-@Composable
-fun ResultCount() {
+fun ResultCount(count: Int) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "10 Kết Quả",
+            text = "$count Kết Quả",
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp
         )
@@ -262,15 +260,7 @@ fun ResultCount() {
 }
 
 @Composable
-fun MedicalList() {
-    val items = listOf(
-        "Trung tâm Xét nghiệm Y khoa Medilab Sài Gòn",
-        "Phòng khám Đa khoa Meccare",
-        "Phòng khám Đa khoa trực tuyến BS. Nguyễn Thanh Tâm",
-        "Trung tâm Tiêm chủng VNVC Quận 1",
-        "Trung tâm Chăm sóc sức khỏe European Wellness Việt Nam (EWH)"
-    )
-
+fun MedicalList(items: List<String>) {
     LazyColumn {
         items(items) { item ->
             MedicalItem(name = item)
