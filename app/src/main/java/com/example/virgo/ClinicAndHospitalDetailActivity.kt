@@ -79,6 +79,28 @@ fun ClinicAndHospitalDetail() {
                 }
                 item { TabSection(selectedTab, onTabSelected = { selectedTab = it }) }
                 item { TabContent(selectedTab) }
+                item{
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Nút "Đặt lịch hẹn"
+                    Button(
+                        onClick = { /* TODO: Thêm hành động khi nhấn nút */ },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF007BFF) // Màu xanh của nút
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(
+                            text = "Đặt lịch hẹn",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
     }
@@ -94,7 +116,6 @@ fun TabSection(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     ) {
         TabButton("Thông tin cơ bản", selected = selectedTab == 0) { onTabSelected(0) }
         TabButton("Đánh giá", selected = selectedTab == 1) { onTabSelected(1) }
-        TabButton("Câu hỏi thường gặp", selected = selectedTab == 2) { onTabSelected(2) }
     }
 }
 
@@ -120,7 +141,6 @@ fun TabContent(selectedTab: Int) {
     when (selectedTab) {
         0 -> BasicInfoContent()
         1 -> ReviewContent()
-        2 -> FAQContent()
     }
 }
 
@@ -222,39 +242,7 @@ fun ReviewContent() {
     }
 }
 
-@Composable
-fun FAQContent() {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("Câu hỏi thường gặp", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(8.dp))
 
-        FAQItem(question = "Tôi có cần đặt lịch trước khi đến không?", answer = "Có, vui lòng đặt lịch trước.")
-        FAQItem(question = "Trung tâm có nhận xét nghiệm vào cuối tuần không?", answer = "Có, trung tâm làm việc cả cuối tuần.")
-    }
-}
-
-@Composable
-fun FAQItem(question: String, answer: String) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { expanded = !expanded }
-            .padding(vertical = 8.dp)
-    ) {
-        Text(question, fontSize = 16.sp, modifier = Modifier.weight(1f))
-        Icon(
-            imageVector = if (expanded) Icons.Default.Add else Icons.Default.Add,
-            contentDescription = "Expand Answer"
-        )
-    }
-
-    if (expanded) {
-        Text(answer, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 16.dp, bottom = 8.dp))
-    }
-}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
