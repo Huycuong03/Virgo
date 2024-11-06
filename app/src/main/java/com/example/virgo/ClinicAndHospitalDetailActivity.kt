@@ -191,12 +191,6 @@ fun BasicInfoContent() {
 
         Spacer(modifier = Modifier.height(16.dp))
         Text("Hình thức thanh toán", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            PaymentMethod(iconRes = R.drawable.ic_visa, text = "Visa")
-            PaymentMethod(iconRes = R.drawable.ic_qr_code, text = "QR Code")
-            PaymentMethod(iconRes = R.drawable.ic_cash, text = "Tiền mặt")
-        }
     }
 }
 
@@ -217,18 +211,6 @@ fun ExpandableSection(title: String, content: @Composable () -> Unit) {
             content()
             Spacer(modifier = Modifier.height(8.dp))
         }
-    }
-}
-
-@Composable
-fun PaymentMethod(iconRes: Int, text: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Image(
-            painter = painterResource(id = iconRes),
-            contentDescription = text,
-            modifier = Modifier.size(40.dp)
-        )
-        Text(text, fontSize = 14.sp)
     }
 }
 
