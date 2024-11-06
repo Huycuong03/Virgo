@@ -1,4 +1,4 @@
-package com.example.virgo
+package com.example.virgo.feature.appointment
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.virgo.R
 import com.example.virgo.ui.theme.VirgoTheme
 
 class AppointmentActivity : ComponentActivity() {
