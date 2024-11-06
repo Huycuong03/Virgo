@@ -230,3 +230,4 @@ fun ReviewContent() {
 fun PreviewClinicAndHospitalDetail() {
     ClinicAndHospitalDetail()
 }
+//
