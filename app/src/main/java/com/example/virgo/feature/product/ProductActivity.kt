@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
@@ -64,7 +64,7 @@ fun ProductDetailScreen() {
                 title = {},
                 navigationIcon = {
                     IconButton(onClick = { /* handle back */ }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -202,7 +202,7 @@ fun ProductDetailScreen() {
 }
 @Composable
 @Preview
-fun pre(){
+fun Pre(){
     VirgoTheme{
         ProductDetailScreen()
     }
