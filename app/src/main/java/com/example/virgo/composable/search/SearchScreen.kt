@@ -1,4 +1,4 @@
-package com.example.virgo.feature.search
+package com.example.virgo.composable.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,9 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -35,12 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-class SearchActivity {
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchApp() {
+fun SearchScreen() {
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
     val recentSearches = listOf("sửa rửa mặt", "thuốc nhỏ mắt")
     val frequentSearches = listOf(
@@ -63,7 +58,7 @@ fun SearchApp() {
                 onClick = { /* Handle back press */ },
                 modifier = Modifier.size(20.dp) // Make back button smaller
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
             }
 
             // Search Text Field taking more space
@@ -187,5 +182,5 @@ fun Tag(text: String, onClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun SearchPreview(){
-    SearchApp()
+    SearchScreen()
 }

@@ -1,9 +1,5 @@
-package com.example.virgo.feature.product
+package com.example.virgo.composable.product
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
@@ -43,18 +39,6 @@ import androidx.compose.ui.unit.sp
 import com.example.virgo.R
 import com.example.virgo.ui.theme.VirgoTheme
 
-class ProductActivity: ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            VirgoTheme {
-                ProductDetailScreen()
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen() {
@@ -64,7 +48,7 @@ fun ProductDetailScreen() {
                 title = {},
                 navigationIcon = {
                     IconButton(onClick = { /* handle back */ }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -202,7 +186,7 @@ fun ProductDetailScreen() {
 }
 @Composable
 @Preview
-fun pre(){
+fun PreviewProductDetailScreen(){
     VirgoTheme{
         ProductDetailScreen()
     }
