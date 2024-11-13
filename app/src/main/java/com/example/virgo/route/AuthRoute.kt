@@ -1,4 +1,4 @@
-package com.example.virgo.route.auth
+package com.example.virgo.route
 
 import kotlinx.serialization.Serializable
 

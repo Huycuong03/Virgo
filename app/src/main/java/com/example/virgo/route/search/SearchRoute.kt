@@ -1,6 +1,6 @@
-package com.example.virgo.route.home
+package com.example.virgo.route.search
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-object HomeRoute
+object SearchRoute

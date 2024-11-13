@@ -1,4 +1,4 @@
-package com.example.virgo.composable.search
+package com.example.virgo.ui.screen.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -1,4 +1,4 @@
-package com.example.virgo.composable.product
+package com.example.virgo.ui.screen.ecommerce
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
