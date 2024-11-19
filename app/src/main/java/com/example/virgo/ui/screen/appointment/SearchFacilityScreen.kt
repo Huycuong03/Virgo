@@ -32,9 +32,6 @@ fun TopAppBarSection() {
     var searchProvinceText by remember { mutableStateOf("") }
     val filteredProvinces = provinces.filter { it.contains(searchProvinceText, ignoreCase = true) }
 
-
-
-
     Column {
         Row(
             modifier = Modifier
@@ -114,13 +111,11 @@ fun TopAppBarSection() {
 
 
 @Composable
-fun MedicalSearchScreen(modifier: Modifier = Modifier) {
+fun SearchFacilityScreen(modifier: Modifier = Modifier) {
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Chọn danh mục") }
     var categoryExpanded by remember { mutableStateOf(false) }
     val categories = stringArrayResource(id = R.array.medical_departments)
-
-
 
 
     val medicalCenters = listOf(
@@ -336,5 +331,5 @@ fun MedicalItem(name: String) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewMedicalSearchScreen() {
-    MedicalSearchScreen()
+    SearchFacilityScreen()
 }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -31,6 +32,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -39,18 +41,31 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.virgo.R
+import com.example.virgo.model.Article
+import com.example.virgo.model.Product
+import com.example.virgo.route.ecommerce.ProductDetailRoute
+import com.example.virgo.route.search.SearchResultRoute
+import com.example.virgo.ui.screen.lib.Gallery
+import com.example.virgo.ui.screen.lib.ProductCard
+import com.example.virgo.ui.screen.lib.SearchBar
+import com.example.virgo.ui.screen.lib.TagSection
+import com.example.virgo.ui.theme.ColorBackground
+import com.example.virgo.ui.theme.ColorGradient1
 
-data class Product(val name: String, val price: String, val oldPrice: String?, val imageRes: Int)
-data class Article(val title: String, val imageRes: Int)
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchResultScreen() {
+fun SearchResultScreen(query: String, navController: NavController) {
+    var searchText by remember {
+        mutableStateOf(query)
+    }
+    var selectedTab by remember { mutableStateOf(true) }
+
+
     val products = listOf(
-        Product("Sữa rửa mặt On: The Body Rice Therapy H...", "132.000đ", "165.000đ", R.drawable.image_holder), // Replace icon_home with your placeholder
-        Product("Sữa rửa mặt tẩy trang Hatomugi Reihaku Ha...", "99.000đ", null, R.drawable.image_holder),
-        Product("Neo Cleanser", "120.000đ", null, R.drawable.image_holder)
+        Product(0, "Sữa rửa mặt On: The Body Rice Therapy H...", "132.000đ", "165.000đ", R.drawable.image_holder), // Replace icon_home with your placeholder
+        Product(1, "Sữa rửa mặt tẩy trang Hatomugi Reihaku Ha...", "99.000đ", null, R.drawable.image_holder),
+        Product(2, "Neo Cleanser", "120.000đ", null, R.drawable.image_holder)
     )
 
     val articles = listOf(
@@ -59,191 +74,122 @@ fun SearchResultScreen() {
         Article("Sữa rửa mặt Cerave của nước nào? Sữa rửa mặt Cerave có tốt không?", R.drawable.image_holder),
     )
 
-    var selectedTab by remember { mutableStateOf("Sản phẩm") }
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(Color(0xFFEFEFEF))) {
-        TopAppBar(
-            navigationIcon = {
-                IconButton(onClick = { /* Handle the back action */ }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                }
-            },
-            title = { Text("Sữa rửa mặt", fontSize = 20.sp) },
-            actions = {
-                Icon(Icons.Filled.Delete, contentDescription = "DeleteInput", Modifier.padding(horizontal = 10.dp))
+        .background(color = ColorBackground)
+    ) {
+        Row (
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = ColorGradient1)
+                .padding(vertical = 10.dp)
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
-        )
+
+            SearchBar(
+                query = searchText,
+                trailingIcon = {
+                    if (searchText.isNotEmpty()) {
+                        IconButton(onClick = { searchText = "" }) {
+                            Icon(Icons.Default.Close, contentDescription = null)
+                        }
+                    }
+                },
+                onChange = { searchText = it }
+            ) {
+                TODO()
+            }
+        }
 
         TabRow(
-            selectedTabIndex = if (selectedTab == "Sản phẩm") 0 else 1,
+            selectedTabIndex = if (selectedTab) 0 else 1,
             modifier = Modifier.fillMaxWidth()
         ) {
             Tab(
-                selected = selectedTab == "Sản phẩm",
-                onClick = { selectedTab = "Sản phẩm" },
-                text = { Text("Sản phẩm") }
+                selected = selectedTab,
+                onClick = { selectedTab = true },
+                text = { Text("Product") }
             )
             Tab(
-                selected = selectedTab == "Bài viết",
-                onClick = { selectedTab = "Bài viết" },
-                text = { Text("Bài viết") }
+                selected = !selectedTab,
+                onClick = { selectedTab = false },
+                text = { Text("Article") }
             )
         }
 
-        if (selectedTab == "Sản phẩm") {
-            ProductList(products)
+        if (selectedTab) {
+            ProductGallery(products, navController)
         } else {
-            ArticleList(articles)
+            ArticleGallery(articles)
         }
+
     }
 }
 
 @Composable
-fun ProductList(products: List<Product>) {
-    var sortOrder by remember { mutableStateOf("Top Sellers") }
+fun ProductGallery(products: List<Product>, navController: NavController) {
+    val orders = listOf("Top Sellers", "Lowest price", "Highest price")
+    var sortOrder by remember { mutableIntStateOf(0) }
 
-    // Sort products based on the selected filter
     val sortedProducts = when (sortOrder) {
-        "Lowest Price" -> products.sortedBy { it.price.removeSuffix("đ").replace(".", "").toInt() }
-        "Highest Price" -> products.sortedByDescending { it.price.removeSuffix("đ").replace(".", "").toInt() }
-        else -> products // Top Sellers logic can be applied here if you have data to sort by it
+        1 -> products.sortedBy { it.price.removeSuffix("đ").replace(".", "").toInt() }
+        2 -> products.sortedByDescending { it.price.removeSuffix("đ").replace(".", "").toInt() }
+        else -> products
     }
-
-    Column(modifier = Modifier.padding(8.dp)) {
-
-        // Display the number of products found
-        Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
-            Text("Tìm thấy ${sortedProducts.size} sản phẩm", fontSize = 16.sp)
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(vertical = 10.dp)
+    ) {
+        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+            Text("${sortedProducts.size} product${if (sortedProducts.size > 1) "s" else ""} found")
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        // Divider between sections
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
             thickness = 1.dp,
             color = Color.Gray
         )
 
-        // Filter buttons (Sort order selection)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(2.dp),
-            horizontalArrangement = Arrangement.Start
+                .padding(horizontal = 16.dp)
         ) {
-            Button(
-                onClick = { sortOrder = "Top Sellers" },
-                modifier = Modifier.size(80.dp, 36.dp).padding(end = 4.dp),
-                contentPadding = PaddingValues(4.dp)
-            ) {
-                Text("Bán chạy", style = TextStyle(fontSize = 12.sp))
-            }
-            Button(
-                onClick = { sortOrder = "Lowest Price" },
-                modifier = Modifier.size(80.dp, 36.dp).padding(end = 4.dp),
-                contentPadding = PaddingValues(4.dp)
-            ) {
-                Text("Giá thấp", style = TextStyle(fontSize = 12.sp))
-            }
-            Button(
-                onClick = { sortOrder = "Highest Price" },
-                modifier = Modifier.size(80.dp, 36.dp).padding(end = 4.dp),
-                contentPadding = PaddingValues(4.dp)
-            ) {
-                Text("Giá cao", style = TextStyle(fontSize = 12.sp))
-            }
-        }
-
-        // Display products in a 2-column grid
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2), // Define 2 columns for grid layout
-            modifier = Modifier.padding(8.dp)
-        ) {
-            items(sortedProducts) { product ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .padding(vertical = 4.dp),
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .height(300.dp)
-                            .background(Color.White)
-                    ) {
-                        // Product image
-                        Image(
-                            painter = painterResource(id = product.imageRes),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(120.dp)
-                                .align(Alignment.CenterHorizontally) // Align image to center horizontally
-                        )
-                        Spacer(modifier = Modifier.height(12.dp)) // Spacer for some space between image and name
-
-                        // Product name
-                        Text(
-                            product.name,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.align(Alignment.CenterHorizontally) // Align text to center
-                        )
-                        Spacer(modifier = Modifier.height(8.dp)) // Spacer for some space between name and price
-
-                        // Price and old price
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            // Product price
-                            Text(
-                                product.price,
-                                fontSize = 14.sp,
-                                color = Color(0xFF2979FF),
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.width(12.dp)) // Spacer for space between price and old price
-                            // Old price (if exists)
-                            product.oldPrice?.let {
-                                Text(
-                                    it,
-                                    fontSize = 14.sp,
-                                    color = Color.Gray,
-                                    textDecoration = TextDecoration.LineThrough
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.weight(1f)) // Spacer for space between price and button
-
-                        // "Mua" button
-                        Button(
-                            onClick = { /* Add to cart action */ },
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .size(120.dp, 35.dp)
-                        ) {
-                            Text("Chọn mua", style = TextStyle(fontSize = 14.sp))
-                        }
-                    }
-                }
-
+            TagSection(values = orders) { order ->
+                sortOrder = orders.indexOf(order)
             }
         }
     }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Column (
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+    ) {
+        Gallery(items = products) { product ->
+            if (product is Product) {
+                ProductCard(product = product) {
+                    navController.navigate(ProductDetailRoute(product.id))
+                }
+            }
+        }
+    }
+
 }
 
 
 
 @Composable
-fun ArticleList(articles: List<Article>) {
+fun ArticleGallery(articles: List<Article>) {
     LazyColumn(modifier = Modifier.padding(8.dp)) {
         item {
             Text("Tìm thấy ${articles.size} bài viết", fontSize = 16.sp, modifier = Modifier.padding(8.dp))
@@ -276,5 +222,5 @@ fun ArticleList(articles: List<Article>) {
 @Preview(showBackground = true)
 @Composable
 fun SearchResultPreview(){
-    SearchResultScreen()
+    SearchResultScreen("None", NavController(LocalContext.current))
 }

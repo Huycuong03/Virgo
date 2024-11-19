@@ -31,23 +31,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.virgo.R
 import com.example.virgo.ui.theme.VirgoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailScreen() {
+fun ProductDetailScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = { /* handle back */ }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
@@ -188,6 +190,6 @@ fun ProductDetailScreen() {
 @Preview
 fun PreviewProductDetailScreen(){
     VirgoTheme{
-        ProductDetailScreen()
+        ProductDetailScreen(NavController(LocalContext.current))
     }
 }
