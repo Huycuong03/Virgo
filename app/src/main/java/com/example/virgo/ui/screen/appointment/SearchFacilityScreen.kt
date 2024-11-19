@@ -388,4 +388,3 @@ fun MedicalItem(name: String) {
 fun PreviewMedicalSearchScreen() {
     MedicalSearchScreen()
 }
-///

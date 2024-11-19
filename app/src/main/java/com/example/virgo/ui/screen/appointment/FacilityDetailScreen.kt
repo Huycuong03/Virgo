@@ -554,4 +554,3 @@ fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Strin
 fun PreviewClinicAndHospitalDetail() {
     FacilityDetail()
 }
-///
