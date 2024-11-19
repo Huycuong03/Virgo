@@ -232,7 +232,7 @@ fun BasicInfoContent() {
     Column(modifier = Modifier.padding(16.dp)) {
         Text("Giờ làm việc", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Thứ Hai - Chủ Nhật: 06:00 - 19:00", fontSize = 16.sp)
+        Text("Thứ Hai - Chủ Nhật: 07:00 - 18:00", fontSize = 16.sp)
 
         ExpandableSection("Thông tin bệnh viện") {
             Text(
@@ -242,14 +242,32 @@ fun BasicInfoContent() {
         }
 
         ExpandableSection("Chuyên khoa") {
-            Text("- Đa khoa\n- Chẩn đoán hình ảnh", fontSize = 16.sp)
+            val departments = listOf(
+                "Đa khoa",
+                "Chẩn đoán hình ảnh"
+
+            )
+            Column {
+                departments.forEach { service ->
+                    Text(service, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+            }
         }
 
         ExpandableSection("Cơ sở vật chất") {
-            Text(
-                "- Phòng xét nghiệm\n- Máy xét nghiệm miễn dịch tự động\n- Máy xét nghiệm sinh hóa tự động\n- Máy xét nghiệm huyết học\n- Giường bệnh",
-                fontSize = 16.sp
+            val csvc = listOf(
+                "Phòng xét nghiệm",
+                "Máy xét nghiệm miễn dịch tự động",
+                "Máy xét nghiệm huyết học",
+                "Giường bệnh"
             )
+            Column {
+                csvc.forEach { service ->
+                    Text(service, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+            }
         }
 
         ExpandableSection("Dịch vụ") {
@@ -367,14 +385,12 @@ fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Strin
                 color = Color.Black
             )
 
-            // Month Navigation and Calendar View with Border
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(1.dp, Color.LightGray, shape = RoundedCornerShape(8.dp))
                     .padding(8.dp)
             ) {
-                // Month and Year Navigation
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
@@ -403,7 +419,6 @@ fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Strin
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Day of Week Labels
                 Row(
                     horizontalArrangement = Arrangement.SpaceAround,
                     modifier = Modifier.fillMaxWidth()

@@ -24,16 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.virgo.R
 
-
 @Composable
 fun TopAppBarSection() {
     val provinces = stringArrayResource(id = R.array.provinces)
     var expanded by remember { mutableStateOf(false) }
     var searchProvinceText by remember { mutableStateOf("") }
     val filteredProvinces = provinces.filter { it.contains(searchProvinceText, ignoreCase = true) }
-
-
-
 
     Column {
         Row(
@@ -58,22 +54,11 @@ fun TopAppBarSection() {
                     contentDescription = "Mở danh sách tỉnh thành"
                 )
             }
-
-
-
-
             Spacer(modifier = Modifier.weight(1f))
-
-
-
-
             TextButton(onClick = { /* TODO: Implement cancel action */ }) {
                 Text("Hủy", color = Color(0xFF007BFF))
             }
         }
-
-
-
 
         if (expanded) {
             Column(
@@ -90,10 +75,6 @@ fun TopAppBarSection() {
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
-
-
-
-
                 LazyColumn {
                     items(filteredProvinces) { province ->
                         DropdownMenuItem(
@@ -110,19 +91,12 @@ fun TopAppBarSection() {
     }
 }
 
-
-
-
 @Composable
 fun MedicalSearchScreen(modifier: Modifier = Modifier) {
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Chọn danh mục") }
     var categoryExpanded by remember { mutableStateOf(false) }
     val categories = stringArrayResource(id = R.array.medical_departments)
-
-
-
-
     val medicalCenters = listOf(
         "Trung tâm Xét nghiệm Y khoa Medilab Sài Gòn",
         "Phòng khám Đa khoa Meccare",
@@ -136,15 +110,9 @@ fun MedicalSearchScreen(modifier: Modifier = Modifier) {
         "Trung tâm Kiểm soát Bệnh tật TP.HCM (HCDC)"
     )
 
-
-
-
     val filteredMedicalCenters = medicalCenters.filter {
         it.contains(searchText, ignoreCase = true)
     }
-
-
-
 
     Column(
         modifier = modifier
@@ -173,9 +141,6 @@ fun MedicalSearchScreen(modifier: Modifier = Modifier) {
     }
 }
 
-
-
-
 @Composable
 fun SearchBar(searchText: String, onTextChange: (String) -> Unit) {
     Row(
@@ -195,9 +160,6 @@ fun SearchBar(searchText: String, onTextChange: (String) -> Unit) {
         Icon(Icons.Filled.Search, contentDescription = "Search Icon")
     }
 }
-
-
-
 
 @Composable
 fun FilterBar(
@@ -226,9 +188,6 @@ fun FilterBar(
             )
         }
 
-
-
-
         if (expanded) {
             Column(
                 modifier = Modifier
@@ -239,9 +198,6 @@ fun FilterBar(
                 var categorySearchText by remember { mutableStateOf("") }
                 val filteredCategories = categories.filter { it.contains(categorySearchText, ignoreCase = true) }
 
-
-
-
                 TextField(
                     value = categorySearchText,
                     onValueChange = { categorySearchText = it },
@@ -250,9 +206,6 @@ fun FilterBar(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
-
-
-
 
                 LazyColumn {
                     items(filteredCategories) { category ->
@@ -266,9 +219,6 @@ fun FilterBar(
         }
     }
 }
-
-
-
 
 @Composable
 fun ResultCount(count: Int) {
@@ -285,9 +235,6 @@ fun ResultCount(count: Int) {
     }
 }
 
-
-
-
 @Composable
 fun MedicalList(items: List<String>) {
     LazyColumn {
@@ -297,9 +244,6 @@ fun MedicalList(items: List<String>) {
         }
     }
 }
-
-
-
 
 @Composable
 fun MedicalItem(name: String) {
@@ -329,9 +273,6 @@ fun MedicalItem(name: String) {
         }
     }
 }
-
-
-
 
 @Preview(showBackground = true)
 @Composable
