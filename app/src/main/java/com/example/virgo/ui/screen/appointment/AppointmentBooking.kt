@@ -35,15 +35,6 @@ import androidx.compose.ui.unit.sp
 import com.example.virgo.R
 import java.time.LocalDate
 
-class AppointmentConfirmationActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            AppointmentConfirmationScreen()
-        }
-    }
-}
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

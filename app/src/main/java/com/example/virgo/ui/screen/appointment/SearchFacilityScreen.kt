@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,76 +26,161 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.virgo.R
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarSection() {
     val provinces = stringArrayResource(id = R.array.provinces)
-    var expanded by remember { mutableStateOf(false) }
-    var searchProvinceText by remember { mutableStateOf("") }
-    val filteredProvinces = provinces.filter { it.contains(searchProvinceText, ignoreCase = true) }
+    var selectedProvince by remember { mutableStateOf("Tất cả") }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val coroutineScope = rememberCoroutineScope()
+    var showProvinceSheet by remember { mutableStateOf(false) }
 
-    Column {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .clickable { showProvinceSheet = true }
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .clickable { expanded = true }
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = if (searchProvinceText.isNotEmpty()) searchProvinceText else "Chọn tỉnh thành",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-                Icon(
-                    imageVector = Icons.Filled.ArrowDropDown,
-                    contentDescription = "Mở danh sách tỉnh thành"
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            TextButton(onClick = { /* TODO: Implement cancel action */ }) {
-                Text("Hủy", color = Color(0xFF007BFF))
-            }
+            Icon(
+                imageVector = Icons.Filled.LocationOn,
+                contentDescription = "Location",
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = selectedProvince,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
         }
+        Spacer(modifier = Modifier.weight(1f))
+        TextButton(onClick = { /* TODO: Implement cancel action */ }) {
+            Text(
+                text = "Hủy",
+                color = Color(0xFF007BFF),
+                fontSize = 20.sp
+            )
+        }
+    }
 
-        if (expanded) {
-            Column(
-                modifier = Modifier
-                    .background(Color.White)
-                    .padding(8.dp)
-                    .fillMaxWidth()
-            ) {
-                TextField(
-                    value = searchProvinceText,
-                    onValueChange = { searchProvinceText = it },
-                    placeholder = { Text("Tìm kiếm tỉnh thành") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
-                LazyColumn {
-                    items(filteredProvinces) { province ->
-                        DropdownMenuItem(
-                            text = { Text(province) },
-                            onClick = {
-                                searchProvinceText = province
-                                expanded = false
-                            }
-                        )
+    if (showProvinceSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showProvinceSheet = false },
+            sheetState = sheetState
+        ) {
+            ProvinceSelectionContent(
+                provinces = provinces,
+                currentSelection = selectedProvince,
+                onSelectionDone = { selected ->
+                    selectedProvince = selected
+                    coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                        showProvinceSheet = false
                     }
                 }
-            }
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicalSearchScreen(modifier: Modifier = Modifier) {
+fun ProvinceSelectionContent(
+    provinces: Array<String>,
+    currentSelection: String,
+    onSelectionDone: (String) -> Unit
+) {
+    var selectedProvince by remember { mutableStateOf(currentSelection) }
+    var searchProvinceText by remember { mutableStateOf("") }
+    val filteredProvinces = provinces.filter { it.contains(searchProvinceText, ignoreCase = true) }
+
+    Column(
+        modifier = Modifier
+            .background(Color(0xFFF1F5FB))
+            .fillMaxWidth()
+            .height(600.dp)
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White, shape = CircleShape),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            TextField(
+                value = searchProvinceText,
+                onValueChange = { searchProvinceText = it },
+                placeholder = { Text("Tìm tỉnh/thành phố") },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                singleLine = true,
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedPlaceholderColor = Color.Gray
+                )
+            )
+        }
+
+        // List of provinces
+        Box(modifier = Modifier.weight(1f)) {
+            LazyColumn {
+                items(filteredProvinces) { province ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedProvince = province }
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = province,
+                            modifier = Modifier.weight(1f),
+                            fontSize = 16.sp
+                        )
+                        if (province == selectedProvince) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = "Đã chọn",
+                                tint = Color(0xFF007BFF)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Done button
+        Button(
+            onClick = { onSelectionDone(selectedProvince) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF)),
+        ) {
+            Text(
+                text = "Xong",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+
+@Composable
+fun MedicalSearchScreen() {
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Chọn danh mục") }
     var categoryExpanded by remember { mutableStateOf(false) }
@@ -115,7 +203,7 @@ fun MedicalSearchScreen(modifier: Modifier = Modifier) {
     }
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF1F5FB))
             .padding(16.dp)
@@ -141,6 +229,7 @@ fun MedicalSearchScreen(modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(searchText: String, onTextChange: (String) -> Unit) {
     Row(
@@ -156,11 +245,17 @@ fun SearchBar(searchText: String, onTextChange: (String) -> Unit) {
             textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
             modifier = Modifier.weight(1f),
             placeholder = { Text("Nhập từ khóa tìm kiếm") },
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
         )
         Icon(Icons.Filled.Search, contentDescription = "Search Icon")
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterBar(
     selectedCategory: String,
@@ -198,13 +293,22 @@ fun FilterBar(
                 var categorySearchText by remember { mutableStateOf("") }
                 val filteredCategories = categories.filter { it.contains(categorySearchText, ignoreCase = true) }
 
-                TextField(
+                OutlinedTextField(
                     value = categorySearchText,
                     onValueChange = { categorySearchText = it },
                     placeholder = { Text("Tìm kiếm danh mục") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                        .padding(vertical = 8.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        containerColor = Color.White,
+                        focusedBorderColor = Color.Black,
+                        unfocusedBorderColor = Color.Black,
+                        focusedTextColor = Color.Black,
+                        cursorColor = Color.Black,
+                        unfocusedPlaceholderColor = Color.Gray
+                    )
                 )
 
                 LazyColumn {
@@ -223,8 +327,9 @@ fun FilterBar(
 @Composable
 fun ResultCount(count: Int) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = "$count Kết Quả",
@@ -250,16 +355,20 @@ fun MedicalItem(name: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .height(100.dp) // Set fixed height for the Card
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(10.dp), // Set the radius of the corners
+        colors = CardDefaults.cardColors(containerColor = Color.White), // Ensure background is always white
+        elevation = CardDefaults.cardElevation(4.dp) // Optional: Add elevation for shadow
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize() // Ensure Row takes up full space of the Card
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                painter = painterResource(id = R.drawable.image_holder),
                 contentDescription = "Medical Center Icon",
                 modifier = Modifier
                     .size(40.dp)
@@ -268,7 +377,7 @@ fun MedicalItem(name: String) {
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(name, fontWeight = FontWeight.Bold)
-                Text("Đa khoa", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
+                Text("Đa khoa", fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
             }
         }
     }
