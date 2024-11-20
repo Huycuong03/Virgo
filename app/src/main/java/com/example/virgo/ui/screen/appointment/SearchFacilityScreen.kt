@@ -387,4 +387,4 @@ fun MedicalItem(name: String) {
 @Composable
 fun PreviewMedicalSearchScreen() {
     MedicalSearchScreen()
-}//
+}
