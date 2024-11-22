@@ -32,7 +32,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarSection() {
@@ -41,7 +40,6 @@ fun TopAppBarSection() {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
     var showProvinceSheet by remember { mutableStateOf(false) }
-
 
     Row(
         modifier = Modifier
@@ -96,6 +94,24 @@ fun TopAppBarSection() {
     }
 }
 
+    if (showProvinceSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showProvinceSheet = false },
+            sheetState = sheetState
+        ) {
+            ProvinceSelectionContent(
+                provinces = provinces,
+                currentSelection = selectedProvince,
+                onSelectionDone = { selected ->
+                    selectedProvince = selected
+                    coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                        showProvinceSheet = false
+                    }
+                }
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,7 +123,6 @@ fun ProvinceSelectionContent(
     var selectedProvince by remember { mutableStateOf(currentSelection) }
     var searchProvinceText by remember { mutableStateOf("") }
     val filteredProvinces = provinces.filter { it.contains(searchProvinceText, ignoreCase = true) }
-
 
     Column(
         modifier = Modifier
@@ -138,7 +153,6 @@ fun ProvinceSelectionContent(
             )
         }
 
-
         // List of provinces
         Box(modifier = Modifier.weight(1f)) {
             LazyColumn {
@@ -166,8 +180,6 @@ fun ProvinceSelectionContent(
                 }
             }
         }
-
-
         // Done button
         Button(
             onClick = { onSelectionDone(selectedProvince) },
@@ -185,8 +197,6 @@ fun ProvinceSelectionContent(
         }
     }
 }
-
-
 
 
 @Composable
@@ -208,11 +218,9 @@ fun SearchFacilityScreen() {
         "Trung tâm Kiểm soát Bệnh tật TP.HCM (HCDC)"
     )
 
-
     val filteredMedicalCenters = medicalCenters.filter {
         it.contains(searchText, ignoreCase = true)
     }
-
 
     Column(
         modifier = Modifier
@@ -241,7 +249,6 @@ fun SearchFacilityScreen() {
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(searchText: String, onTextChange: (String) -> Unit) {
@@ -267,7 +274,6 @@ fun SearchBar(searchText: String, onTextChange: (String) -> Unit) {
         Icon(Icons.Filled.Search, contentDescription = "Search Icon")
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -297,7 +303,6 @@ fun FilterBar(
             )
         }
 
-
         if (expanded) {
             Column(
                 modifier = Modifier
@@ -307,7 +312,6 @@ fun FilterBar(
             ) {
                 var categorySearchText by remember { mutableStateOf("") }
                 val filteredCategories = categories.filter { it.contains(categorySearchText, ignoreCase = true) }
-
 
                 OutlinedTextField(
                     value = categorySearchText,
@@ -326,7 +330,6 @@ fun FilterBar(
                         unfocusedPlaceholderColor = Color.Gray
                     )
                 )
-
 
                 LazyColumn {
                     items(filteredCategories) { category ->
@@ -402,7 +405,6 @@ fun MedicalItem(name: String) {
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
