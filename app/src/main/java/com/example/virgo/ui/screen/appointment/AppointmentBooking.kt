@@ -383,4 +383,4 @@ fun SectionWithAvatarAndDetails(
 fun Preview() {
     AppointmentConfirmationScreen()
 }
-//
+/////
