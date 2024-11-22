@@ -1,5 +1,6 @@
 package com.example.virgo.ui.screen.appointment
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -72,6 +73,26 @@ fun TopAppBarSection() {
             )
         }
     }
+
+
+    if (showProvinceSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showProvinceSheet = false },
+            sheetState = sheetState
+        ) {
+            ProvinceSelectionContent(
+                provinces = provinces,
+                currentSelection = selectedProvince,
+                onSelectionDone = { selected ->
+                    selectedProvince = selected
+                    coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                        showProvinceSheet = false
+                    }
+                }
+            )
+        }
+    }
+}
 
     if (showProvinceSheet) {
         ModalBottomSheet(
@@ -159,7 +180,6 @@ fun ProvinceSelectionContent(
                 }
             }
         }
-
         // Done button
         Button(
             onClick = { onSelectionDone(selectedProvince) },
@@ -180,7 +200,7 @@ fun ProvinceSelectionContent(
 
 
 @Composable
-fun MedicalSearchScreen() {
+fun SearchFacilityScreen() {
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Chọn danh mục") }
     var categoryExpanded by remember { mutableStateOf(false) }
@@ -324,6 +344,7 @@ fun FilterBar(
     }
 }
 
+
 @Composable
 fun ResultCount(count: Int) {
     Row(
@@ -340,6 +361,7 @@ fun ResultCount(count: Int) {
     }
 }
 
+
 @Composable
 fun MedicalList(items: List<String>) {
     LazyColumn {
@@ -350,20 +372,21 @@ fun MedicalList(items: List<String>) {
     }
 }
 
+
 @Composable
 fun MedicalItem(name: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp) // Set fixed height for the Card
+            .height(100.dp)
             .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(10.dp), // Set the radius of the corners
-        colors = CardDefaults.cardColors(containerColor = Color.White), // Ensure background is always white
-        elevation = CardDefaults.cardElevation(4.dp) // Optional: Add elevation for shadow
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize() // Ensure Row takes up full space of the Card
+                .fillMaxSize()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -386,5 +409,5 @@ fun MedicalItem(name: String) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewMedicalSearchScreen() {
-    MedicalSearchScreen()
-}//
+    SearchFacilityScreen()
+}
