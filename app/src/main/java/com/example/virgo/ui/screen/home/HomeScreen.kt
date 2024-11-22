@@ -43,9 +43,7 @@ import com.example.virgo.ui.theme.ColorGradient1
 
 @Composable
 fun HomeScreen(navController: NavController) {
-//    val features = listOf(
-//        "Appointment", "Reminder"
-//    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,27 +74,6 @@ fun HomeScreen(navController: NavController) {
             Text(text = "Search for products, articles, ...")
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
-
-//        Card {
-//            LazyVerticalGrid(
-//                columns = GridCells.Fixed(4),
-//                modifier = Modifier
-//                    .background(ColorBackground)
-//                    .padding(10.dp)
-//            ) {
-//                items(features) { feature ->
-//                    Card {
-//                        TextButton(
-//                            onClick = { /*TODO*/ },
-//                            modifier = Modifier.background(Color.White)
-//                        ) {
-//                            Text(text = feature)
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 }
 

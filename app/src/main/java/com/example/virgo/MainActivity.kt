@@ -143,7 +143,7 @@ class MainActivity : ComponentActivity() {
 
 fun shouldShowNavBar (route: String?): Boolean {
     val routeWithNavBar = listOf(
-        "HomeRoute"
+        "HomeRoute", "SearchFacilityRoute"
     )
     return route.isNullOrEmpty() or routeWithNavBar.contains(route?.split(".")?.lastOrNull())
 }
