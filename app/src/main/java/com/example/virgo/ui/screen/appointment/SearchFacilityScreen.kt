@@ -74,7 +74,6 @@ fun TopAppBarSection() {
         }
     }
 
-
     if (showProvinceSheet) {
         ModalBottomSheet(
             onDismissRequest = { showProvinceSheet = false },
@@ -93,26 +92,6 @@ fun TopAppBarSection() {
         }
     }
 }
-
-    if (showProvinceSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showProvinceSheet = false },
-            sheetState = sheetState
-        ) {
-            ProvinceSelectionContent(
-                provinces = provinces,
-                currentSelection = selectedProvince,
-                onSelectionDone = { selected ->
-                    selectedProvince = selected
-                    coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                        showProvinceSheet = false
-                    }
-                }
-            )
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProvinceSelectionContent(
