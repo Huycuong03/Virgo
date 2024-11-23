@@ -8,3 +8,4 @@ data class NavItem (
     val unselectedIcon: ImageVector,
     val badge: Int? = null
 )
+
