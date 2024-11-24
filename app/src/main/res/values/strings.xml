@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Virgo</string>
+    <string name="firebase_instance">https://virgo-238d4-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+    <string name="github_page">https://huycuong03.github.io/Virgo/static</string>
     <string-array name="provinces">
         <item>Tất cả</item>
         <item>Hà Nội</item>
