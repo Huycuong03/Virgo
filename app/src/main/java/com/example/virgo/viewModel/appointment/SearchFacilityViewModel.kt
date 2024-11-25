@@ -1,4 +1,4 @@
-package com.example.virgo.viewModel
+package com.example.virgo.viewModel.appointment
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf

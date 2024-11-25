@@ -33,7 +33,7 @@ import com.example.virgo.R
 import com.example.virgo.model.lib.Session
 import com.example.virgo.route.appointment.AppointmentHistoryRoute
 import com.example.virgo.ui.screen.lib.AppointmentBookingDialog
-import com.example.virgo.viewModel.AppointmentBookingViewModel
+import com.example.virgo.viewModel.appointment.AppointmentBookingViewModel
 import java.time.LocalDate
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

@@ -1,6 +1,5 @@
-package com.example.virgo.viewModel
+package com.example.virgo.viewModel.appointment
 
-import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import com.example.virgo.model.appointment.Facility
 import com.google.firebase.firestore.FirebaseFirestore

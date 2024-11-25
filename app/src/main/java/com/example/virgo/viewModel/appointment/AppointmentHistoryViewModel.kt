@@ -1,4 +1,4 @@
-package com.example.virgo.viewModel
+package com.example.virgo.viewModel.appointment
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -8,7 +8,7 @@ import com.example.virgo.model.appointment.Appointment
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 
-class AppointmentListViewModel : ViewModel() {
+class AppointmentHistoryViewModel : ViewModel() {
     private val _appointmentList = mutableStateListOf<Appointment>()
     val appointmentList: State<List<Appointment>> get() = derivedStateOf {
         _appointmentList.toList()

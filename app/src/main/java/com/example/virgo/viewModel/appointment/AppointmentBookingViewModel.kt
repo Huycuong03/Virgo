@@ -1,4 +1,4 @@
-package com.example.virgo.viewModel
+package com.example.virgo.viewModel.appointment
 
 import android.os.Build
 import androidx.annotation.RequiresApi

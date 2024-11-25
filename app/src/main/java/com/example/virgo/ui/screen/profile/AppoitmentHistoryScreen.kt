@@ -23,14 +23,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.virgo.R
 import com.example.virgo.model.appointment.Appointment
-import com.example.virgo.viewModel.AppointmentListViewModel
+import com.example.virgo.viewModel.appointment.AppointmentHistoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppointmentHistoryScreen(
     navController: NavController
 ) {
-    val viewModel : AppointmentListViewModel = viewModel()
+    val viewModel : AppointmentHistoryViewModel = viewModel()
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabTitles = listOf("Sắp đến", "Hoàn thành", "Đã hủy")
     var snackbarVisible by remember { mutableStateOf(false)}

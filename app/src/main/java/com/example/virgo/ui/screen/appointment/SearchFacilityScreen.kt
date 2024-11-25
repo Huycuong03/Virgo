@@ -19,7 +19,7 @@ import com.example.virgo.route.appointment.FacilityDetailRoute
 import com.example.virgo.ui.screen.lib.RowItem
 import com.example.virgo.ui.screen.lib.SearchBar
 import com.example.virgo.ui.theme.ColorBackground
-import com.example.virgo.viewModel.SearchFacilityViewModel
+import com.example.virgo.viewModel.appointment.SearchFacilityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

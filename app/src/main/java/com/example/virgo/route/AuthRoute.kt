@@ -3,4 +3,7 @@ package com.example.virgo.route
 import kotlinx.serialization.Serializable
 
 @Serializable
-object AuthRoute
+object LoginRoute
+
+@Serializable
+object SignupRoute

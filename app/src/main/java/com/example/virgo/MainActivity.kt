@@ -31,11 +31,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.virgo.model.lib.NavItem
+import com.example.virgo.repository.SharedPreferencesManager
 import com.example.virgo.route.ArticleRoute
 import com.example.virgo.ui.screen.ecommerce.ProductDetailScreen
 import com.example.virgo.ui.screen.home.HomeScreen
 import com.example.virgo.ui.screen.search.SearchScreen
 import com.example.virgo.route.HomeRoute
+import com.example.virgo.route.LoginRoute
+import com.example.virgo.route.SignupRoute
 import com.example.virgo.route.TelemedicineRoute
 import com.example.virgo.route.appointment.AppointmentBookingRoute
 import com.example.virgo.route.appointment.AppointmentHistoryRoute
@@ -47,6 +50,8 @@ import com.example.virgo.ui.screen.appointment.AppointmentBookingScreen
 import com.example.virgo.ui.screen.appointment.FacilityDetailScreen
 import com.example.virgo.ui.screen.appointment.SearchFacilityScreen
 import com.example.virgo.ui.screen.article.ArticleScreen
+import com.example.virgo.ui.screen.auth.LoginScreen
+import com.example.virgo.ui.screen.auth.SignUpScreen
 import com.example.virgo.ui.screen.profile.AppointmentHistoryScreen
 import com.example.virgo.ui.screen.telemedicine.TelemedicineScreen
 import com.example.virgo.ui.theme.VirgoTheme
@@ -56,33 +61,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val navItems = listOf(
-            NavItem(
-                route = HomeRoute,
-                selectedIcon = Icons.Filled.Home,
-                unselectedIcon = Icons.Outlined.Home
-            ),
-            NavItem(
-                route = SearchFacilityRoute,
-                selectedIcon = Icons.Filled.DateRange,
-                unselectedIcon = Icons.Outlined.DateRange
-            ),
-            NavItem(
-                route = TelemedicineRoute,
-                selectedIcon = Icons.Filled.Call,
-                unselectedIcon = Icons.Outlined.Call
-            ),
-            NavItem(
-                route = "Cart",
-                selectedIcon = Icons.Filled.ShoppingCart,
-                unselectedIcon = Icons.Outlined.ShoppingCart
-            ),
-            NavItem(
-                route = "Profile",
-                selectedIcon = Icons.Filled.Person,
-                unselectedIcon = Icons.Outlined.Person
-            )
-        )
+        SharedPreferencesManager.init(applicationContext)
+        val navItems = NavItem.entries.toList()
+        val uid = SharedPreferencesManager.getString("uid")
+
+        fun shouldShowNavBar (routeFull: String?): Boolean {
+            if (routeFull.isNullOrEmpty()) {
+                return true
+            }
+
+            val route = routeFull.split(".").last()
+            for (navItem in navItems) {
+                if (navItem.route.toString().contains(route)) {
+                    return true
+                }
+            }
+
+            return false
+        }
 
         setContent {
             VirgoTheme {
@@ -114,9 +110,15 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = HomeRoute,
+                        startDestination = if (uid.isNullOrEmpty()) LoginRoute else HomeRoute,
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        composable<SignupRoute> {
+                            SignUpScreen(navController)
+                        }
+                        composable<LoginRoute> {
+                            LoginScreen(navController)
+                        }
                         composable<HomeRoute> {
                             HomeScreen(navController)
                         }
@@ -153,11 +155,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-fun shouldShowNavBar (route: String?): Boolean {
-    val routeWithNavBar = listOf(
-        "HomeRoute", "SearchFacilityRoute"
-    )
-    return route.isNullOrEmpty() or routeWithNavBar.contains(route?.split(".")?.lastOrNull())
 }
