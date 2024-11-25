@@ -1,5 +1,6 @@
 package com.example.virgo.model.lib
 
+import com.google.firebase.Timestamp
 import com.google.firebase.database.IgnoreExtraProperties
 import com.google.firebase.firestore.DocumentId
 
@@ -10,5 +11,6 @@ data class Article (
     val name: String? = null,
     val description: String? = null,
     val image: String? = null,
-    val html: String? = null
+    val html: String? = null,
+    val timestamp: Timestamp? = null
 )
