@@ -259,14 +259,14 @@ fun AppointmentCard(
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Hủy lịch hẹn",
-                            tint = Color.Gray,
+                            tint = Color.Black,
                             modifier = Modifier.size(24.dp)
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Hủy",
-                        color = Color.Gray,
+                        color = Color.Black,
                         fontSize = 16.sp
                     )
                 }

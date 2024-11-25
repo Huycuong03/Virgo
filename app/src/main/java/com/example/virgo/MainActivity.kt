@@ -39,6 +39,7 @@ import com.example.virgo.route.HomeRoute
 import com.example.virgo.route.TelemedicineRoute
 import com.example.virgo.route.appointment.FacilityDetailRoute
 import com.example.virgo.route.appointment.SearchFacilityRoute
+import com.example.virgo.route.article.ArticleRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.screen.appointment.FacilityDetailScreen
