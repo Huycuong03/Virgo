@@ -1,5 +1,5 @@
 package com.example.virgo.ui.screen.ecommerce
-//NavController(LocalContext.current)
+
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -39,8 +39,7 @@ import com.example.virgo.ui.theme.VirgoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailScreen(navController: NavController) {
-    val context = LocalContext.current
+fun ProductDetailScreen(id: String, navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -291,9 +290,9 @@ fun ReplyComment(name: String, role: String, comment: String, date: String) {
 
 
 @Composable
-@Preview(showBackground = true)
-fun PreviewProductDetailScreen() {
-    VirgoTheme {
-        ProductDetailScreen(NavController(LocalContext.current))
+@Preview
+fun PreviewProductDetailScreen(){
+    VirgoTheme{
+        ProductDetailScreen("0", NavController(LocalContext.current))
     }
 }

@@ -1,6 +1,5 @@
-package com.example.virgo.ui.screen.lib
+package com.example.virgo.ui.screen.ecommerce
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,22 +14,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.virgo.model.Product
+import coil.compose.AsyncImage
+import com.example.virgo.R
+import com.example.virgo.model.ecommerce.Product
 
 @Composable
 fun ProductCard (product: Product, onClick: (Product) -> Unit) {
@@ -43,19 +41,17 @@ fun ProductCard (product: Product, onClick: (Product) -> Unit) {
                 .height(250.dp)
                 .background(Color.White)
         ) {
-            // Product image
-            Image(
-                painter = painterResource(id = product.imageRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(120.dp)
-                    .align(Alignment.CenterHorizontally) // Align image to center horizontally
+            AsyncImage(
+                model = (stringResource(id = R.string.github_page) + "/drawable/" + (product.images[0])),
+                contentDescription = "Image Description",
+                modifier = Modifier.size(120.dp).align(Alignment.CenterHorizontally),
+                contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.height(12.dp)) // Spacer for some space between image and name
 
             // Product name
             Text(
-                product.name,
+                product.name?:"Missing",
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
                 maxLines = 2,
@@ -72,21 +68,12 @@ fun ProductCard (product: Product, onClick: (Product) -> Unit) {
             ) {
                 // Product price
                 Text(
-                    product.price,
+                    product.price.toString(),
                     fontSize = 14.sp,
                     color = Color(0xFF2979FF),
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.width(12.dp)) // Spacer for space between price and old price
-                // Old price (if exists)
-                product.oldPrice?.let {
-                    Text(
-                        it,
-                        fontSize = 14.sp,
-                        color = Color.Gray,
-                        textDecoration = TextDecoration.LineThrough
-                    )
-                }
             }
             Spacer(modifier = Modifier.weight(1f)) // Spacer for space between price and button
 
@@ -97,7 +84,7 @@ fun ProductCard (product: Product, onClick: (Product) -> Unit) {
                     .align(Alignment.CenterHorizontally)
                     .size(120.dp, 35.dp)
             ) {
-                Text("Chọn mua", style = TextStyle(fontSize = 14.sp))
+                Text("Add to cart", style = TextStyle(fontSize = 14.sp))
             }
         }
     }
