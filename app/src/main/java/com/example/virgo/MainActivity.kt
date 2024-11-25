@@ -40,10 +40,12 @@ import com.example.virgo.ui.screen.search.SearchScreen
 import com.example.virgo.route.HomeRoute
 import com.example.virgo.route.TelemedicineRoute
 import com.example.virgo.route.appointment.SearchFacilityRoute
+import com.example.virgo.route.article.ArticleRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
 import com.example.virgo.route.search.SearchResultRoute
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.screen.appointment.SearchFacilityScreen
+import com.example.virgo.ui.screen.article.ArticleContent
 import com.example.virgo.ui.screen.chat.TelemedicineScreen
 import com.example.virgo.ui.screen.search.SearchResultScreen
 import com.example.virgo.ui.theme.VirgoTheme
@@ -133,6 +135,10 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<TelemedicineRoute> {
                             TelemedicineScreen()
+                        }
+                        composable("ArticleRoute?url={url}") { backStackEntry ->
+                            val url = backStackEntry.arguments?.getString("url") ?: ""
+                            ArticleContent(url = url)
                         }
                     }
                 }

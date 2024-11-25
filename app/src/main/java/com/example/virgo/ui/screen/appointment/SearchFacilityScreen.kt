@@ -107,7 +107,7 @@ fun ProvinceSelectionContent(
         modifier = Modifier
             .background(Color(0xFFF1F5FB))
             .fillMaxWidth()
-            .height(600.dp)
+            .height(500.dp)
             .padding(16.dp)
     ) {
         Row(
