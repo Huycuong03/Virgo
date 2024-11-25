@@ -28,8 +28,8 @@ class SearchFacilityViewModel : ViewModel() {
         FirebaseFirestore.getInstance().collection("facilities").get().addOnSuccessListener { documents ->
             for (doc in documents) {
                 val facility = doc.toObject<Facility>()
-                _facilityList.add(facility)
-                _facilityResultList.add(facility)
+                _facilityList.add(facility.copy(id = doc.id))
+                _facilityResultList.add(facility.copy(id = doc.id))
             }
         }
     }

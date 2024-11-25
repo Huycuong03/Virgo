@@ -1,7 +1,6 @@
 package com.example.virgo.ui.screen.appointment
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,27 +21,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.virgo.R
+import com.example.virgo.model.lib.Session
+import com.example.virgo.route.appointment.AppointmentHistoryRoute
+import com.example.virgo.ui.screen.lib.AppointmentBookingDialog
+import com.example.virgo.viewModel.AppointmentBookingViewModel
 import java.time.LocalDate
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppointmentConfirmationScreen() {
-    var reason by remember { mutableStateOf(TextFieldValue()) }
-    var patientType by remember { mutableStateOf("new") }
+fun AppointmentBookingScreen(facilityId: String, navController: NavController) {
+    val viewModel : AppointmentBookingViewModel = viewModel()
     val scrollState = rememberLazyListState()
-    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-    var selectedTimeSlot by remember { mutableStateOf<String?>(null) }
-    var showDialog by remember { mutableStateOf(false) } // Control bottom sheet visibility
-
+    var showDialog by remember { mutableStateOf(false) }
+    var reason = viewModel.reason.value
+    var selectedDate = viewModel.selectedDate.value
+    var selectedSession = viewModel.selectedSession.value
+    val facility = viewModel.facility.value
+    val user = viewModel.user.value
+    LaunchedEffect(key1 = facilityId) {
+        viewModel.init(facilityId)
+    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -77,35 +85,37 @@ fun AppointmentConfirmationScreen() {
         ) {
             item {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    SectionWithAvatarAndDetails(
-                        title = "Bệnh nhân",
-                        imageRes = R.drawable.image_holder,
-                        details = listOf(
-                            "Thi Nguyễn Văn" to "name",
-                            "a2k57tp@gmail.com" to "email",
-                            "+84336386034" to "phone"
+                    user.avatarImage?.let {
+                        SectionWithAvatarAndDetails(
+                            title = "Bệnh nhân",
+                            image = it,
+                            details = listOf(
+                                user.name to "name",
+                                user.email to "email",
+                                user.phoneNumber to "phone"
+                            )
                         )
-                    )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
-                    SectionWithAvatarAndDetails(
-                        title = "Bệnh viện",
-                        imageRes = R.drawable.image_holder,
-                        details = listOf(
-                            "Phòng khám Đa khoa Quốc tế Golden Healthcare" to "name",
-                            "Đa khoa" to "department",
-                            "37 Hoàng Hoa Thám, P. 13, Q. Tân Bình, TP. HCM" to "location"
+                    facility.avatarImage?.let {
+                        SectionWithAvatarAndDetails(
+                            title = "Bệnh viện",
+                            image = it,
+                            details = listOf(
+                                facility.name to "name",
+                                facility.address.toString() to "location"
+                            )
                         )
-                    )
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 CardBox(
                     title = "Ngày giờ hẹn khám",
-                    type = "Tư vấn trực tiếp",
                     initialDate = selectedDate,
-                    initialTime = selectedTimeSlot,
-                    onDateTimeSelected = { date, timeSlot ->
+                    initialTime = selectedSession,
+                    onDateTimeSelected = { date, session ->
                         selectedDate = date
-                        selectedTimeSlot = timeSlot
+                        selectedSession = session
                     },
                     onEditClick = { showDialog = true }
                 )
@@ -116,31 +126,6 @@ fun AppointmentConfirmationScreen() {
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    Text(
-                        text = "CÂU HỎI KHẢO SÁT",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = "Bạn đã sử dụng dịch vụ của phòng khám này chưa?",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = patientType == "new",
-                            onClick = { patientType = "new" }
-                        )
-                        Text("Bệnh nhân mới")
-                        Spacer(modifier = Modifier.width(16.dp))
-                        RadioButton(
-                            selected = patientType == "existing",
-                            onClick = { patientType = "existing" }
-                        )
-                        Text("Bệnh nhân cũ")
-                    }
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -150,14 +135,14 @@ fun AppointmentConfirmationScreen() {
                     ){
                         BasicTextField(
                             value = reason,
-                            onValueChange = { reason = it },
+                            onValueChange = {viewModel.onChangeReason(it)},
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(100.dp)
                                 .background(Color.White, shape = RoundedCornerShape(8.dp))
-                                .padding(horizontal = 16.dp),
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
                             decorationBox = { innerTextField ->
-                                if (reason.text.isEmpty()) {
+                                if (reason.isEmpty()) {
                                     Text(
                                         text = "Nêu lí do, triệu chứng để buổi hẹn khám của bạn được chuẩn bị tốt hơn",
                                         color = Color.Gray,
@@ -168,7 +153,7 @@ fun AppointmentConfirmationScreen() {
                             }
                         )
                     }
-                    
+
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -180,7 +165,9 @@ fun AppointmentConfirmationScreen() {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { /* Confirm Action */ },
+                    onClick = {
+                        navController.navigate(AppointmentHistoryRoute)
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007bff))
                 ) {
@@ -191,9 +178,9 @@ fun AppointmentConfirmationScreen() {
         if (showDialog) {
             AppointmentBookingDialog(
                 onDismiss = { showDialog = false },
-                onConfirm = { date, timeSlot ->
+                onConfirm = { date, session ->
                     selectedDate = date
-                    selectedTimeSlot = timeSlot
+                    selectedSession = session
                     showDialog = false
                 }
             )
@@ -203,10 +190,9 @@ fun AppointmentConfirmationScreen() {
 @Composable
 fun CardBox(
     title: String,
-    type: String,
     initialDate: LocalDate?,
-    initialTime: String?,
-    onDateTimeSelected: (LocalDate, String) -> Unit,
+    initialTime: Session,
+    onDateTimeSelected: (LocalDate, Session) -> Unit,
     onEditClick: () -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -214,8 +200,8 @@ fun CardBox(
     if (showDialog) {
         AppointmentBookingDialog(
             onDismiss = { showDialog = false },
-            onConfirm = { date, timeSlot ->
-                onDateTimeSelected(date, timeSlot)
+            onConfirm = { date, session ->
+                onDateTimeSelected(date, session)
                 showDialog = false
             }
         )
@@ -261,24 +247,12 @@ fun CardBox(
                         color = Color.Black
                     )
                     Text(
-                        text = initialTime ?: "Chọn giờ",
+                        text = if (initialTime.isNull()) "Chọn giờ" else initialTime.toString(),
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
-                }
 
-                Text(
-                    text = type,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    color = Color(0xFF007BFF),
-                    modifier = Modifier
-                        .background(
-                            color = Color(0xFFD0E8FF),
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                )
+                }
                 IconButton(onClick = onEditClick) {
                     Icon(
                         imageVector = Icons.Filled.Edit,
@@ -296,8 +270,8 @@ fun CardBox(
 @Composable
 fun SectionWithAvatarAndDetails(
     title: String,
-    imageRes: Int,
-    details: List<Pair<String, String?>>
+    image: String,
+    details: List<Pair<String?, String>>
 ) {
     Column(
         modifier = Modifier
@@ -324,8 +298,8 @@ fun SectionWithAvatarAndDetails(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = imageRes),
+                AsyncImage(
+                    model = (stringResource(id = R.string.github_page) + "/drawable/" + (image)),
                     contentDescription = null,
                     modifier = Modifier
                         .size(48.dp)
@@ -361,14 +335,16 @@ fun SectionWithAvatarAndDetails(
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                             }
+                            if (text != null) {
                                 Text(
                                     text = text,
-                                    fontWeight = if (type.equals("name") || type.equals("department")) FontWeight.Bold else FontWeight.Normal,
-                                    fontSize = if (type.equals("name")|| type.equals("department")) 16.sp else 14.sp,
-                                    color = if (type.equals("name")|| type.equals("department")) Color.Black else Color.Gray,
+                                    fontWeight = if (type.equals("name") ) FontWeight.Bold else FontWeight.Normal,
+                                    fontSize = if (type.equals("name")) 16.sp else 14.sp,
+                                    color = if (type.equals("name")) Color.Black else Color.Gray,
                                     modifier = Modifier.padding(bottom = 4.dp)
 
                                 )
+                            }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -377,10 +353,3 @@ fun SectionWithAvatarAndDetails(
         }
     }
 }
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun Preview() {
-    AppointmentConfirmationScreen()
-}
-/////
