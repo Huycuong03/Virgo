@@ -37,14 +37,17 @@ import com.example.virgo.ui.screen.home.HomeScreen
 import com.example.virgo.ui.screen.search.SearchScreen
 import com.example.virgo.route.HomeRoute
 import com.example.virgo.route.TelemedicineRoute
+import com.example.virgo.route.appointment.AppointmentBookingRoute
+import com.example.virgo.route.appointment.AppointmentHistoryRoute
 import com.example.virgo.route.appointment.FacilityDetailRoute
 import com.example.virgo.route.appointment.SearchFacilityRoute
-import com.example.virgo.route.article.ArticleRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
 import com.example.virgo.route.search.SearchRoute
+import com.example.virgo.ui.screen.appointment.AppointmentBookingScreen
 import com.example.virgo.ui.screen.appointment.FacilityDetailScreen
 import com.example.virgo.ui.screen.appointment.SearchFacilityScreen
 import com.example.virgo.ui.screen.article.ArticleScreen
+import com.example.virgo.ui.screen.profile.AppointmentHistoryScreen
 import com.example.virgo.ui.screen.telemedicine.TelemedicineScreen
 import com.example.virgo.ui.theme.VirgoTheme
 
@@ -137,6 +140,13 @@ class MainActivity : ComponentActivity() {
                         composable<FacilityDetailRoute> {
                             val id = it.toRoute<FacilityDetailRoute>().id
                             FacilityDetailScreen(id, navController)
+                        }
+                        composable<AppointmentBookingRoute> {
+                            val facilityId = it.toRoute<AppointmentBookingRoute>().facilityId
+                            AppointmentBookingScreen(facilityId, navController)
+                        }
+                        composable<AppointmentHistoryRoute> {
+                            AppointmentHistoryScreen(navController)
                         }
                     }
                 }

@@ -144,35 +144,6 @@ fun FacilityDetail(facility: Facility, onBooking: () -> Unit) {
     Button(onClick = onBooking) {
         Text(text = "Book an appointment")
     }
-
-//    var datePickerDialogState by remember {
-//        mutableStateOf(false)
-//    }
-//    val datePickerState = rememberDatePickerState()
-//
-//    if (datePickerDialogState) {
-//        DatePickerDialog(
-//            onDismissRequest = { datePickerDialogState = false },
-//            confirmButton = {
-//                Button(onClick = { datePickerDialogState = false }) {
-//                    Text(text = "Cancel")
-//                }
-//                Button(
-//                    onClick = {
-//                        datePickerState.selectedDateMillis?.let {
-//                            datePickerDialogState = false
-//                            selectedDate = Timestamp(seconds = it / 1000, 0)
-//                        }
-//                    },
-//                    enabled = datePickerState.selectedDateMillis != null
-//                ) {
-//                    Text(text = "Next")
-//                }
-//            }
-//        ) {
-//            DatePicker(state = datePickerState)
-//        }
-//    }
 }
 
 @Composable

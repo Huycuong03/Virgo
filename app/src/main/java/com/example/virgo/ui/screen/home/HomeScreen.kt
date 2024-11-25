@@ -25,7 +25,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,51 +37,46 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
+import com.example.virgo.model.ecommerce.Product
+import com.example.virgo.model.lib.Article
+import com.example.virgo.route.ArticleRoute
+import com.example.virgo.route.ecommerce.ProductDetailRoute
 import com.example.virgo.route.search.SearchRoute
+import com.example.virgo.ui.screen.ecommerce.ProductCard
+import com.example.virgo.ui.screen.lib.Gallery
+import com.example.virgo.ui.screen.lib.RowItem
 import com.example.virgo.ui.theme.ColorBackground
 import com.example.virgo.ui.theme.ColorGradient1
-import com.example.virgo.ui.screen.lib.SearchBar
+import com.example.virgo.viewModel.HomeViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    val reminderlist = remember {
-        mutableListOf(
-            Reminder("7:00", "24/11/2024", "Bạn có lịch uống thuốc: Đơn thuốc số 1"),
-            Reminder("20:00", "24/11/2024", "Bạn có lịch uống thuốc: Đơn thuốc số 1"),
-            Reminder("7:00", "25/11/2024", "Bạn có lịch uống thuốc: Đơn thuốc số 1"),
-            Reminder("20:00", "25/11/2024", "Bạn có lịch uống thuốc: Đơn thuốc số 1")
-        )
+//    val reminderlist = remember {
+//        mutableListOf(
+//            Reminder("7:00", "24/11/2024", "Bạn có lịch uống thuốc: Đơn thuốc số 1"),
+//            Reminder("20:00", "24/11/2024", "Bạn có lịch uống thuốc: Đơn thuốc số 1"),
+//            Reminder("7:00", "25/11/2024", "Bạn có lịch uống thuốc: Đơn thuốc số 1"),
+//            Reminder("20:00", "25/11/2024", "Bạn có lịch uống thuốc: Đơn thuốc số 1")
+//        )
+//    }
+//    val today = LocalDate.now()
+//    val upcomingReminders = reminderlist.filter {
+//        val reminderDate = LocalDate.parse(it.date, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+//        reminderDate >= today
+//    }.take(2)
+
+    val viewModel : HomeViewModel = viewModel()
+    val articles = viewModel.articleList.value
+    val products = viewModel.productList.value
+
+    LaunchedEffect("") {
+        viewModel.fetchArticle_And_Product()
     }
-    val today = LocalDate.now()
-    val upcomingReminders = reminderlist.filter {
-        val reminderDate = LocalDate.parse(it.date, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        reminderDate >= today
-    }.take(2)
-
-    val articles = listOf(
-        Article(
-            title = "Thường xuyên bị muỗi đốt là do đâu? Khám phá 7 lý do thú vị",
-            imageUrl = "https://cdn.hellobacsi.com/wp-content/uploads/2019/05/vi-sao-hay-bi-muoi-dot.jpg",
-            description = "Tìm hiểu 7 lý do thú vị khiến bạn thường xuyên bị muỗi đốt.",
-            htmlFilePath = "file:///android_asset/article.html"
-        ),
-        Article(
-            title = "BHA cho da dầu mụn: Những lưu ý về cách chọn và cách dùng",
-            imageUrl = "https://cdn.hellobacsi.com/wp-content/uploads/2024/10/bha-cho-da-dau-mun.jpg?w=828&q=75",
-            description = "Hướng dẫn chọn và sử dụng BHA hiệu quả cho da dầu mụn.",
-            htmlFilePath = "file:///android_asset/article1.html"
-        ),
-        Article(
-            title = "Bị bệnh hở van tim có nguy hiểm không?",
-            imageUrl = "https://cdn.hellobacsi.com/wp-content/uploads/2024/07/Bi-benh-ho-van-tim-co-nguy-hiem-khong.jpg?w=828&q=75",
-            description = "Tìm hiểu về hở van tim và những nguy cơ tiềm ẩn.",
-            htmlFilePath = "file:///android_asset/article2.html"
-        )
-    )
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -119,9 +114,9 @@ fun HomeScreen(navController: NavController) {
         ) {
             Column(modifier = Modifier.fillMaxWidth())
             {
-                upcomingReminders.forEach { reminder ->
-                    ReminderBox(time = reminder.time, title = reminder.title, date = reminder.date)
-                }
+//                upcomingReminders.forEach { reminder ->
+//                    ReminderBox(time = reminder.time, title = reminder.title, date = reminder.date)
+//                }
 
                 Spacer(modifier = Modifier.height(5.dp))
 
@@ -149,9 +144,26 @@ fun HomeScreen(navController: NavController) {
                 ArticleListHorizontal(
                     articles = articles,
                     onArticleClick = { filePath ->
-                        navController.navigate("ArticleRoute?url=$filePath")
+                        navController.navigate(ArticleRoute(filePath))
                     }
                 )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Top ban chay",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Gallery(items = products) {product ->
+                    ProductCard(product = product as Product) {
+                        navController.navigate(ProductDetailRoute(it.id.toString()))
+                    }
+                }
             }
         }
 
@@ -219,7 +231,15 @@ fun ArticleListHorizontal(articles: List<Article>, onArticleClick: (String) -> U
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(articles) { article ->
-            ArticleCardHorizontal(article = article, onArticleClick = onArticleClick)
+           Column(modifier = Modifier.width(310.dp)) {
+               RowItem(
+                   name = article.name.toString(),
+                   description = article.description,
+                   image = article.image
+               ){
+                   onArticleClick(article.html.toString())
+               }
+           }
         }
     }
 }
@@ -230,9 +250,9 @@ fun ArticleCardHorizontal(article: Article, onArticleClick: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { onArticleClick(article.htmlFilePath) },
+            .clickable { article.html?.let { onArticleClick(it) } },
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White), // White background
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -241,10 +261,9 @@ fun ArticleCardHorizontal(article: Article, onArticleClick: (String) -> Unit) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Image
             AsyncImage(
-                model = article.imageUrl,
-                contentDescription = article.title,
+                model = article.image,
+                contentDescription = article.name,
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(8.dp))
@@ -259,7 +278,7 @@ fun ArticleCardHorizontal(article: Article, onArticleClick: (String) -> Unit) {
             ) {
 
                 Text(
-                    text = if (article.title.length > 25) article.title.substring(0, 25) + "..." else article.title,
+                    text = if (article.name?.length!! > 25) article.name.substring(0, 25) + "..." else article.name,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = Color.Black,
@@ -270,12 +289,12 @@ fun ArticleCardHorizontal(article: Article, onArticleClick: (String) -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = if (article.description.length > 35) article.description.substring(0, 35) + "..." else article.description,
-                    fontSize = 12.sp,
-                    color = Color.Gray,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                        text = (if (article.description?.length!! > 35) article.description.substring(0, 35) + "..." else article.description),
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -288,7 +307,6 @@ fun ArticleCardHorizontal(article: Article, onArticleClick: (String) -> Unit) {
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

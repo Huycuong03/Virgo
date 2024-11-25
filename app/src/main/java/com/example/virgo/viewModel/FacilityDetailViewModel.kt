@@ -10,7 +10,7 @@ class FacilityDetailViewModel : ViewModel() {
     fun loadByFacilityId(id: String, callback: (Facility) -> Unit) {
         FirebaseFirestore.getInstance().collection("facilities").document(id).get().addOnSuccessListener {document ->
             document.toObject<Facility>()?.let {
-                callback(it)
+                callback(it.copy(id = document.id))
             }
         }
     }

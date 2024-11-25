@@ -35,7 +35,7 @@ fun RowItem (
         modifier = Modifier
             .fillMaxWidth()
             .background(color = Color.White, shape = RoundedCornerShape(10.dp))
-            .padding(8.dp)
+            .padding(10.dp)
             .clickable {
                 onClick()
             }
@@ -50,9 +50,9 @@ fun RowItem (
         Column (
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(name, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(name, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             description?.let {
-                Text(description, fontWeight = FontWeight.Light, fontSize = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(description, fontWeight = FontWeight.Light, fontSize = 12.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
         }
     }

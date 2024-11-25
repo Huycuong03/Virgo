@@ -7,7 +7,7 @@ import com.google.firebase.firestore.PropertyName
 
 @IgnoreExtraProperties
 data class Facility(
-    @DocumentId val id: String? = null,
+    val id: String? = null,
     val coverImage: String? = null,
     val avatarImage: String? = null,
     val name: String? = null,
