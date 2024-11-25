@@ -3,7 +3,7 @@
     <string name="firebase_instance">https://virgo-238d4-default-rtdb.asia-southeast1.firebasedatabase.app</string>
     <string name="github_page">https://huycuong03.github.io/Virgo/static</string>
     <string-array name="provinces">
-        <item>Tất cả</item>
+        <item>All locations</item>
         <item>Hà Nội</item>
         <item>Hồ Chí Minh</item>
         <item>Đà Nẵng</item>
@@ -67,56 +67,5 @@
         <item>Vĩnh Long</item>
         <item>Vĩnh Phúc</item>
         <item>Yên Bái</item>
-    </string-array>
-    <string-array name="medical_departments">
-        <item>Dinh dưỡng và Chế độ ăn uống</item>
-        <item>Tham vấn tâm lý</item>
-        <item>Khúc xạ nhãn khoa</item>
-        <item>Nội tổng quát</item>
-        <item>Ngoại thần kinh</item>
-        <item>Ngoại tổng quát</item>
-        <item>Tiêm chủng</item>
-        <item>Tiểu đường</item>
-        <item>Gây mê - Giảm đau</item>
-        <item>Nội thần kinh</item>
-        <item>Bệnh lý học</item>
-        <item>Lão khoa</item>
-        <item>Chẩn đoán hình ảnh</item>
-        <item>Miễn dịch học</item>
-        <item>Cơ - Xương - Khớp</item>
-        <item>Khoa học thể thao</item>
-        <item>Tâm lý</item>
-        <item>Vật lý trị liệu</item>
-        <item>Chỉnh hình</item>
-        <item>Thần kinh</item>
-        <item>Tâm thần</item>
-        <item>Huyết học</item>
-        <item>Ung thư - Ung bướu</item>
-        <item>Khoa phổi</item>
-        <item>Khoa tiết niệu</item>
-        <item>Khoa thận</item>
-        <item>Khoa thấp khớp</item>
-        <item>Khoa nội tiết</item>
-        <item>Đa khoa</item>
-        <item>Nha khoa</item>
-        <item>Da liễu</item>
-        <item>Nhãn khoa</item>
-        <item>Sản - Phụ khoa</item>
-        <item>Trị liệu thần kinh cột sống</item>
-        <item>Nhi khoa</item>
-        <item>Tai - Mũi - Họng</item>
-        <item>Khoa tiêu hóa</item>
-        <item>Tim mạch</item>
-        <item>Bệnh truyền nhiễm</item>
-        <item>Gan mật</item>
-        <item>Trị liệu hô hấp</item>
-        <item>Chuyên khoa chân</item>
-        <item>Y học phục hồi chức năng</item>
-        <item>Y học cổ truyền</item>
-        <item>Chuyên khoa béo phì</item>
-        <item>Y học giấc ngủ</item>
-        <item>Tình dục học</item>
-        <item>Phẫu thuật thẩm mỹ</item>
-        <item>Nam Khoa</item>
     </string-array>
 </resources>

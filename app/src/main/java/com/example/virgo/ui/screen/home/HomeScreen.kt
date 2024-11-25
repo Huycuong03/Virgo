@@ -40,6 +40,7 @@ import androidx.navigation.NavController
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.theme.ColorBackground
 import com.example.virgo.ui.theme.ColorGradient1
+import com.example.virgo.ui.screen.lib.SearchBar
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -65,8 +66,8 @@ fun HomeScreen(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = ColorBackground, shape = RoundedCornerShape(50))
-                .padding(15.dp)
+                .background(color = Color.White, shape = RoundedCornerShape(50))
+                .padding(10.dp)
                 .clickable { navController.navigate(SearchRoute) }
         ) {
             Icon(imageVector = Icons.Filled.Search, contentDescription = null)
@@ -75,10 +76,4 @@ fun HomeScreen(navController: NavController) {
         }
 
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewHomeScreen() {
-    HomeScreen(navController = NavController(LocalContext.current))
 }

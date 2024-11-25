@@ -43,7 +43,7 @@ import com.example.virgo.ui.theme.VirgoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailScreen(navController: NavController) {
+fun ProductDetailScreen(id: String, navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -190,6 +190,6 @@ fun ProductDetailScreen(navController: NavController) {
 @Preview
 fun PreviewProductDetailScreen(){
     VirgoTheme{
-        ProductDetailScreen(NavController(LocalContext.current))
+        ProductDetailScreen("0", NavController(LocalContext.current))
     }
 }
