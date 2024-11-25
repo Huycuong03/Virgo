@@ -1,4 +1,4 @@
-package com.example.virgo.ui.screen.lib
+package com.example.virgo.ui.screen.search
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.virgo.ui.screen.lib.TagSection
 
 @Composable
 fun SearchSuggestion (
@@ -31,13 +29,7 @@ fun SearchSuggestion (
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if(recentSearches.isEmpty()){
-            Text(
-                text = "You haven't searched anything yet",
-                color = Color.Red
-            )
-        }
-        else{
+        if(recentSearches.isNotEmpty()){
             recentSearches.forEach { search ->
                 TextButton(onClick = { onClick(search) }) {
                     Text(

@@ -1,6 +1,9 @@
 package com.example.virgo.ui.screen.lib
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,14 +38,13 @@ fun SearchBar (
     query: String,
     placeholder: String = "Search for products, articles, ...",
     trailingIcon: @Composable () -> Unit = {},
-    onChange: (String) -> Unit,
-    onDone: () -> Unit
+    onChange: (String) -> Unit
 ) {
     Row (
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = ColorBackground, shape = RoundedCornerShape(50))
+            .background(color = Color.White, shape = RoundedCornerShape(50))
             .padding(horizontal = 10.dp)
     ) {
         Icon(imageVector = Icons.Filled.Search, contentDescription = null)
@@ -51,20 +53,11 @@ fun SearchBar (
             onValueChange = onChange,
             placeholder = { Text(text = placeholder) },
             colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent, // Transparent background
-                focusedIndicatorColor = Color.Transparent, // Optional: make focused indicator transparent
-                unfocusedIndicatorColor = Color.Transparent // Optional: make unfocused indicator transparent
+                containerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
             ),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    onDone()
-                }
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         )
         trailingIcon()
     }

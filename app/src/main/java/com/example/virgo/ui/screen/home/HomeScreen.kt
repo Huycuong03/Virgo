@@ -43,19 +43,7 @@ import coil.compose.AsyncImage
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.theme.ColorBackground
 import com.example.virgo.ui.theme.ColorGradient1
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-data class Reminder(
-    val time: String,
-    val date: String,
-    val title: String
-)
-data class Article(
-    val title: String,
-    val imageUrl: String,
-    val description: String,
-    val htmlFilePath: String
-)
+import com.example.virgo.ui.screen.lib.SearchBar
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -115,8 +103,8 @@ fun HomeScreen(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = ColorBackground, shape = RoundedCornerShape(50))
-                .padding(15.dp)
+                .background(color = Color.White, shape = RoundedCornerShape(50))
+                .padding(10.dp)
                 .clickable { navController.navigate(SearchRoute) }
         ) {
             Icon(imageVector = Icons.Filled.Search, contentDescription = null)
@@ -307,4 +295,3 @@ fun ArticleCardHorizontal(article: Article, onArticleClick: (String) -> Unit) {
 fun PreviewHomeScreen() {
     HomeScreen(navController = NavController(LocalContext.current))
 }
-

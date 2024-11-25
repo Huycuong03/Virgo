@@ -20,14 +20,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.example.virgo.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun ArticleContent(url: String) {
+fun ArticleScreen(html: String) {
+    val url: String = stringResource(id = R.string.github_page) + "/html/" + html
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -46,35 +47,29 @@ fun ArticleContent(url: String) {
                 ),
                 title = { /* Title can be added here if needed */ }
             )
-        },
-        content = { paddingValues ->
-            AndroidView(
-                factory = {
-                    WebView(it).apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-
-                        webViewClient = WebViewClient()
-
-                        settings.javaScriptEnabled = true
-                        loadUrl(url)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                update = {
-                    it.loadUrl(url)
-                }
-            )
         }
-    )
-}
+    ) { paddingValues ->
+        AndroidView(
+            factory = {
+                WebView(it).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ArticleContentPreview() {
-    ArticleContent(url = "file:///android_asset/article.html",)
+                    webViewClient = WebViewClient()
+
+                    settings.javaScriptEnabled = true
+                    loadUrl(url)
+                }
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            update = {
+                it.loadUrl(url)
+            }
+        )
+    }
+
 }
