@@ -1,17 +1,9 @@
 package com.example.virgo.ui.screen.ecommerce
 
-import android.content.Intent
-import android.os.Bundle
-import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,36 +17,48 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.virgo.R
+import com.example.virgo.model.lib.Review
+import com.example.virgo.route.ecommerce.CartRoute
 import com.example.virgo.ui.theme.ColorAccent
 import com.example.virgo.ui.theme.VirgoTheme
+import com.example.virgo.viewModel.ProductDetailViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(id: String, navController: NavController) {
+    var viewModel: ProductDetailViewModel = viewModel()
+    val product = viewModel.product.value
+    LaunchedEffect(id) {
+        viewModel.fetchProduct(id)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = { /* handle back */ }) {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Default.Share, contentDescription = "Share")
-                    }
-
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {
+                        navController.navigate(CartRoute)
+                    }) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
                     }
                 },
@@ -75,15 +79,6 @@ fun ProductDetailScreen(id: String, navController: NavController) {
                 ) {
                     Text("Thêm vào giỏ", color = ColorAccent)
                 }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = {/*handle*/},
-                    colors = ButtonDefaults.buttonColors(containerColor = ColorAccent)
-                ) {
-                    Text("Chọn mua", color = Color.White)
-                }
             }
         }
     ) { padding ->
@@ -91,77 +86,147 @@ fun ProductDetailScreen(id: String, navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(padding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                Image(
-                    painter = painterResource(id = R.drawable.image_holder), // Placeholder image
-                    contentDescription = "Product Image",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                )
-            }
+            product?.let { product ->
+                // Product Images
+                item {
+                    if (product.images.isNotEmpty()) {
+                        val firstImage = product.images.first()
+                        Image(
+                            painter = rememberAsyncImagePainter(firstImage),
+                            contentDescription = "Product Image",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(250.dp)
+                        )
+                    } else {
+                        Text("No Image Available")
+                    }
+                }
 
-            item {
-                Text(
-                    text = "Viên Tinh Nghệ Mật Ong Sữa Chua Honeyland tăng cường đề kháng, sức khỏe (120g)",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 20.sp
-                )
-            }
-
-            item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 8.dp)
-                ) {
+                // Product Name
+                item {
                     Text(
-                        text = "196.000đ",
-                        style = MaterialTheme.typography.displaySmall.copy(fontSize = 24.sp),
+                        text = product.name ?: "No Name",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                         fontWeight = FontWeight.Bold,
-                        color = ColorAccent
+                        lineHeight = 20.sp
                     )
+                }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                // Price and Stock Quantity
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        Text(
+                            text = "${(product.getFormattedPrice())} đ",
+                            style = MaterialTheme.typography.displaySmall.copy(fontSize = 24.sp),
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1E88E5)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = "Stock: ${product.stockQuantity ?: 0}",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+                }
 
+                // Brand and Manufacturer
+                item {
                     Text(
-                        text = "+196 điểm thưởng",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color(0xFFFFA726)
+                        text = "Brand: ${product.brand?.name ?: "N/A"}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "Manufacturer: ${product.manufacturer?.name ?: "N/A"}",
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
-            }
 
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Đổi trả trong 30 ngày", fontSize = 12.sp)
-                    Text("Miễn phí 100% đổi thuốc", fontSize = 12.sp)
-                    Text("Miễn phí vận chuyển", fontSize = 12.sp)
+                // Description
+                item {
+                    Text(
+                        text = product.description ?: "No Description",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
-            }
 
-            item{
-                ProductReviewScreen()
+                // Ingredients
+                item {
+                    if (product.ingredients.isNotEmpty()) {
+                        Text(
+                            text = "Ingredients:",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                        product.ingredients.forEach { ingredient ->
+                            Text("- $ingredient", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+
+                // Preserve Instructions and Warnings
+                item {
+                    if (!product.preserveInstruction.isNullOrEmpty()) {
+                        Text(
+                            text = "Preserve Instructions: ${product.preserveInstruction}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    if (!product.warning.isNullOrEmpty()) {
+                        Text(
+                            text = "Warnings: ${product.warning}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Red
+                        )
+                    }
+                }
+
+
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("Đổi trả trong 30 ngày", fontSize = 12.sp)
+                        Text("Miễn phí 100% đổi thuốc", fontSize = 12.sp)
+                        Text("Miễn phí vận chuyển", fontSize = 12.sp)
+                    }
+                }
+
+                item {
+                    ProductReviewScreen(
+                        product.reviews,
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun ProductReviewScreen() {
+fun ProductReviewScreen(reviews: List<Review>) {
+//    operator fun Float.plusAssign(number: Number) {}
+    var averageRating = 0F
+    reviews.forEach{ review ->
+        averageRating += (review.rating?:0F) }
+    averageRating /= reviews.size.takeIf { it > 0 } ?: 1
     Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "Đánh giá sản phẩm (2 đánh giá)", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        // Header
+        Text(
+            text = "Đánh giá sản phẩm (${reviews.size} đánh giá)",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Average Rating
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Trung bình", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "5", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(text = "${averageRating}", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Icon(
                 imageVector = Icons.Default.Star,
                 contentDescription = null,
@@ -172,14 +237,14 @@ fun ProductReviewScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Rating Bar Breakdown
         Column {
-            RatingBarRow(stars = 5, count = 2)
-            RatingBarRow(stars = 4, count = 0)
-            RatingBarRow(stars = 3, count = 0)
-            RatingBarRow(stars = 2, count = 0)
-            RatingBarRow(stars = 1, count = 0)
+            RatingBarRow(stars = 5, count = reviews.count { it.rating == 5F })
+            RatingBarRow(stars = 4, count = reviews.count { it.rating == 4F })
+            RatingBarRow(stars = 3, count = reviews.count { it.rating == 3F })
+            RatingBarRow(stars = 2, count = reviews.count { it.rating == 2F })
+            RatingBarRow(stars = 1, count = reviews.count { it.rating == 1F })
         }
-
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -187,23 +252,22 @@ fun ProductReviewScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        UserReview(
-            name = "Oanh",
-            rating = 5.0f,
-            comment = "sản phẩm tốt",
-            date = "22 ngày trước"
-        )
+        // Display User Reviews
+        reviews.forEach { review ->
+            UserReview(
+                name = review.user?.name,
+                rating = review.rating,
+                comment = review.comment,
+                date = review.timestamp?.toDate().toString()
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        ReplyComment(
-            name = "Lữ Thị Anh Thư",
-            role = "Dược sĩ",
-            comment = "Chào bạn Oanh, Dạ rất cảm ơn tình cảm của bạn dành cho nhà thuốc FPT Long châu. Bất cứ khi nào bạn cần...",
-            date = "22 ngày trước"
-        )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
+
+
+
 
 @Composable
 fun RatingBarRow(stars: Int, count: Int) {
@@ -228,7 +292,7 @@ fun RatingBarRow(stars: Int, count: Int) {
         }
         Spacer(modifier = Modifier.width(8.dp))
         LinearProgressIndicator(
-            progress = if (stars == 5) 1f else 0f,
+            progress = if (stars == 5) 1f else 1f,
             color = ColorAccent,
             modifier = Modifier
                 .weight(1f)
@@ -240,7 +304,7 @@ fun RatingBarRow(stars: Int, count: Int) {
 }
 
 @Composable
-fun UserReview(name: String, rating: Float, comment: String, date: String) {
+fun UserReview(name: String?, rating: Float?, comment: String?, date: String?) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             imageVector = Icons.Default.AccountCircle,
@@ -250,7 +314,9 @@ fun UserReview(name: String, rating: Float, comment: String, date: String) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(text = name, fontWeight = FontWeight.Bold)
+            if (name != null) {
+                Text(text = name, fontWeight = FontWeight.Bold)
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "$rating", fontSize = 12.sp)
                 Icon(
@@ -260,8 +326,12 @@ fun UserReview(name: String, rating: Float, comment: String, date: String) {
                     modifier = Modifier.size(12.dp)
                 )
             }
-            Text(text = comment, fontSize = 14.sp)
-            Text(text = date, fontSize = 12.sp, color = Color.Gray)
+            if (comment != null) {
+                Text(text = comment, fontSize = 14.sp)
+            }
+            if (date != null) {
+                Text(text = date, fontSize = 12.sp, color = Color.Gray)
+            }
         }
     }
 }
@@ -288,11 +358,3 @@ fun ReplyComment(name: String, role: String, comment: String, date: String) {
     }
 }
 
-
-@Composable
-@Preview
-fun PreviewProductDetailScreen(){
-    VirgoTheme{
-        ProductDetailScreen("0", NavController(LocalContext.current))
-    }
-}

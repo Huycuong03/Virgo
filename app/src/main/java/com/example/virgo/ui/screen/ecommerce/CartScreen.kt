@@ -1,10 +1,12 @@
 package com.example.virgo.ui.screen.ecommerce
 
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -14,32 +16,34 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.virgo.R
 import com.example.virgo.model.Product1
+import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.example.virgo.ui.theme.ColorAccent
 import com.example.virgo.ui.theme.VirgoTheme
+import com.example.virgo.viewModel.CartViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen() {
-    var sum : Double = 0.0
-    var selectAllChecked by remember { mutableStateOf(false) }
-    val products = remember {
-        mutableStateListOf(
-            Product1(1, "Sữa rửa mặt", "264.000", "330.000", 2, "Tuýp", R.drawable.image_holder),
-            Product1(2, "Viên uống Omexxel", "788.000", null, 1, "Hộp", R.drawable.image_holder)
-        )
-    }
+    val viewModel : CartViewModel = viewModel()
+    val productsWithQuantities = viewModel.productsWithQuantities.value
+    val totalSum = viewModel.totalSum.value
+    val selectAllChecked = viewModel.selectAllChecked.value
 
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF0F0F0))) {
         TopAppBar(
@@ -68,11 +72,10 @@ fun CartScreen() {
             Checkbox(
                 checked = selectAllChecked,
                 onCheckedChange = { checked ->
-                    selectAllChecked = checked
-                    products.forEach { it.isChecked = checked }
+                    viewModel.toggleSelectAll(checked)
                 }
             )
-            Text(text = "Chọn tất cả (${products.size})", fontSize = 16.sp)
+            Text(text = "Chọn tất cả (${productsWithQuantities.size})", fontSize = 16.sp)
 
             Spacer(modifier = Modifier.weight(1f))
             TextButton(onClick = { /* TODO: Handle change delivery method */ }) {
@@ -83,20 +86,15 @@ fun CartScreen() {
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn {
-            items(products.size) { index ->
-                ProductItem(
-                    product = products[index],
-                    onCheckedChange = { checked ->
-                        products[index].isChecked = checked
-                        selectAllChecked = products.all { it.isChecked }
-                    }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+            items(productsWithQuantities){product ->
+                ProductItem(product) {
+                    viewModel.toggleSelectOne(product)
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Thành tiền: ${sum}đ",
+        Text(text = "Thành tiền: ${totalSum}đ",
             modifier = Modifier
                 .padding(horizontal = 16.dp),)
         Spacer(modifier = Modifier.height(8.dp))
@@ -113,7 +111,8 @@ fun CartScreen() {
 }
 
 @Composable
-fun ProductItem(product: Product1, onCheckedChange: (Boolean) -> Unit) {
+fun ProductItem(product: ProductWithQuantity, onCheckedChange: (Boolean) -> Unit) {
+    val viewModel : CartViewModel = viewModel()
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -121,45 +120,38 @@ fun ProductItem(product: Product1, onCheckedChange: (Boolean) -> Unit) {
             .padding(horizontal = 16.dp)
     ) {
         Checkbox(
-            checked = product.isChecked,
+            checked = product.selected?:false,
             onCheckedChange = { checked ->
                 onCheckedChange(checked)
             }
         )
 
-        Image(
-            painter = painterResource(id = product.imageUrl),
-            contentDescription = "Product Image",
-            modifier = Modifier
-                .size(60.dp)
-                .padding(8.dp)
+        AsyncImage(
+            model = stringResource(R.string.github_page)+"/drawable/"+ (product.product?.images?.get(0) ?: "image_holder.jpg"),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(60.dp)
         )
 
+
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = product.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = product.price, color = ColorAccent, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                if (product.originalPrice != null) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = product.originalPrice,
-                        color = Color.Gray,
-                        textDecoration = TextDecoration.LineThrough,
-                        fontSize = 12.sp
-                    )
-                }
-            }
+            Text(text = product.product?.name.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(text = product.product?.getFormattedPrice()?:"0 đ", color = ColorAccent, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { /* Decrease quantity */ }) {
+            IconButton(onClick = {
+                viewModel.decreaseQuantity(product.product?.id ?: "")
+            }) {
                 Text("-", fontSize = 30.sp)
             }
             Text(text = "${product.quantity}")
-            IconButton(onClick = { /* Increase quantity */ }) {
+            IconButton(onClick = {
+                viewModel.increaseQuantity(product.product?.id ?: "")
+            }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Increase")
             }
-            Text(text = product.unit)
+            Text(text = product.product?.packaging?.type.toString())
         }
     }
 }

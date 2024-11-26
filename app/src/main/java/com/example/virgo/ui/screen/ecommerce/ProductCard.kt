@@ -68,7 +68,7 @@ fun ProductCard (product: Product, onClick: (Product) -> Unit) {
             ) {
                 // Product price
                 Text(
-                    product.price.toString(),
+                    product.getFormattedPrice()+" đ",
                     fontSize = 14.sp,
                     color = Color(0xFF2979FF),
                     fontWeight = FontWeight.Bold

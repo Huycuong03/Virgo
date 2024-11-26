@@ -3,6 +3,8 @@ package com.example.virgo.model.ecommerce
 import com.example.virgo.model.lib.Review
 import com.google.firebase.database.IgnoreExtraProperties
 import com.google.firebase.firestore.DocumentId
+import java.text.NumberFormat
+import java.util.Locale
 
 @IgnoreExtraProperties
 data class Product(
@@ -23,4 +25,10 @@ data class Product(
     val preserveInstruction: String? = null,
     val warning: String? = null,
     val reviews: List<Review> = emptyList()
-)
+){
+
+    fun getFormattedPrice(): String {
+        val formatter = NumberFormat.getNumberInstance(Locale.US) // Change Locale if needed
+        return formatter.format(price?:0)
+    }
+}
