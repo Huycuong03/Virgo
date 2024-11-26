@@ -44,6 +44,7 @@ import com.example.virgo.route.appointment.AppointmentBookingRoute
 import com.example.virgo.route.appointment.AppointmentHistoryRoute
 import com.example.virgo.route.appointment.FacilityDetailRoute
 import com.example.virgo.route.appointment.SearchFacilityRoute
+import com.example.virgo.route.ecommerce.CartRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.screen.appointment.AppointmentBookingScreen
@@ -52,6 +53,7 @@ import com.example.virgo.ui.screen.appointment.SearchFacilityScreen
 import com.example.virgo.ui.screen.article.ArticleScreen
 import com.example.virgo.ui.screen.auth.LoginScreen
 import com.example.virgo.ui.screen.auth.SignUpScreen
+import com.example.virgo.ui.screen.ecommerce.CartScreen
 import com.example.virgo.ui.screen.profile.AppointmentHistoryScreen
 import com.example.virgo.ui.screen.telemedicine.TelemedicineScreen
 import com.example.virgo.ui.theme.VirgoTheme
@@ -149,6 +151,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<AppointmentHistoryRoute> {
                             AppointmentHistoryScreen(navController)
+                        }
+                        composable<CartRoute> {
+                            CartScreen()
                         }
                     }
                 }

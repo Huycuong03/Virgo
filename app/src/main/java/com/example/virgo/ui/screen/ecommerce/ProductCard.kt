@@ -60,7 +60,6 @@ fun ProductCard (product: Product, onClick: (Product) -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp)) // Spacer for some space between name and price
 
-            // Price and old price
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -68,7 +67,7 @@ fun ProductCard (product: Product, onClick: (Product) -> Unit) {
             ) {
                 // Product price
                 Text(
-                    product.price.toString(),
+                    product.getFormattedPrice()+" đ",
                     fontSize = 14.sp,
                     color = Color(0xFF2979FF),
                     fontWeight = FontWeight.Bold

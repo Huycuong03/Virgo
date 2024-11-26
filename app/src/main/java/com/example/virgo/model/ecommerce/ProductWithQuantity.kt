@@ -5,5 +5,6 @@ import com.google.firebase.database.IgnoreExtraProperties
 @IgnoreExtraProperties
 data class ProductWithQuantity (
     val product: Product? = null,
-    val quantity: Int? = null
+    val quantity: Int? = null,
+    val selected: Boolean? = false
 )

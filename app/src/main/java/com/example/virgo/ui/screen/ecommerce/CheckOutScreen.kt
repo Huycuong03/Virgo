@@ -29,16 +29,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.virgo.model.Product1
+import coil.compose.AsyncImage
 import com.example.virgo.R
+import com.example.virgo.model.ecommerce.Product
 import com.example.virgo.ui.theme.ColorAccent
 import com.example.virgo.ui.theme.VirgoTheme
 
@@ -46,10 +49,7 @@ import com.example.virgo.ui.theme.VirgoTheme
 @Composable
 fun OrderConfirmationScreen() {
     val products = remember {
-        mutableStateListOf(
-            Product1(1, "Sữa rửa mặt", "264.000", "330.000", 2, "Tuýp", R.drawable.image_holder),
-            Product1(2, "Viên uống Omexxel", "788.000", null, 1, "Hộp", R.drawable.image_holder)
-        )
+        mutableStateListOf<Product>()
     }
 
     Scaffold(
@@ -168,7 +168,7 @@ fun OrderConfirmationScreen() {
 }
 
 @Composable
-fun ProductItem(product: Product1) {
+fun ProductItem(product: Product) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -176,27 +176,17 @@ fun ProductItem(product: Product1) {
             .padding(horizontal = 16.dp)
     ) {
 
-        Image(
-            painter = painterResource(id = product.imageUrl),
-            contentDescription = "Product Image",
-            modifier = Modifier
-                .size(60.dp)
-                .padding(8.dp)
+        AsyncImage(
+            model = (stringResource(id = R.string.github_page) + "/drawable/" + (product.images[0])),
+            contentDescription = "Image Description",
+            modifier = Modifier.size(120.dp),
+            contentScale = ContentScale.Crop
         )
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = product.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = product.name.toString(), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = product.price, color = ColorAccent, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                if (product.originalPrice != null) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = product.originalPrice,
-                        color = Color.Gray,
-                        textDecoration = TextDecoration.LineThrough,
-                        fontSize = 12.sp
-                    )
-                }
+                Text(text = product.getFormattedPrice()+" đ", color = ColorAccent, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }
