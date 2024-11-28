@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.virgo.route.HomeRoute
 import com.example.virgo.route.TelemedicineRoute
 import com.example.virgo.route.appointment.SearchFacilityRoute
+import com.example.virgo.route.ecommerce.CartRoute
 
 enum class NavItem (
     val route: Any,
@@ -38,7 +39,7 @@ enum class NavItem (
         unselectedIcon = Icons.Outlined.Call
     ),
     CART(
-        route = "Cart",
+        route = CartRoute,
         selectedIcon = Icons.Filled.ShoppingCart,
         unselectedIcon = Icons.Outlined.ShoppingCart
     ),
