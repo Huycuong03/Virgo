@@ -30,6 +30,12 @@ class AppointmentHistoryViewModel : ViewModel() {
                 .collection("appointments")
                 .document(it)
                 .update("status", "Đã hủy")
+                .addOnSuccessListener {
+                    val index = _appointmentList.indexOfFirst { it.id == appointment.id }
+                    if (index != -1) {
+                        _appointmentList[index] = _appointmentList[index].copy(status = "Đã hủy")
+                    }
+                }
                 .addOnFailureListener { exception ->
                     exception.printStackTrace()
                 }

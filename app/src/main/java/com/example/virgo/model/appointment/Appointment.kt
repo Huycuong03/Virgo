@@ -20,7 +20,6 @@ data class Appointment(
     val status: String? = null,
     val reason: String? = null,
     val payment: Payment? = null
-
 )
 {
     fun getFormatedDate(): LocalDate? {
