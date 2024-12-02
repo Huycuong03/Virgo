@@ -1,6 +1,9 @@
 package com.example.virgo.ui.screen.appointment
 
 import android.annotation.SuppressLint
+import android.os.Build
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,7 +38,11 @@ import com.example.virgo.route.appointment.AppointmentHistoryRoute
 import com.example.virgo.ui.screen.lib.AppointmentBookingDialog
 import com.example.virgo.viewModel.appointment.AppointmentBookingViewModel
 import java.time.LocalDate
+import androidx.compose.ui.platform.LocalContext
+import com.example.virgo.model.appointment.Facility
+import com.example.virgo.model.appointment.OperatingHour
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,14 +50,18 @@ fun AppointmentBookingScreen(facilityId: String, navController: NavController) {
     val viewModel : AppointmentBookingViewModel = viewModel()
     val scrollState = rememberLazyListState()
     var showDialog by remember { mutableStateOf(false) }
-    var reason = viewModel.reason.value
+    val reason = viewModel.reason.value
     var selectedDate = viewModel.selectedDate.value
     var selectedSession = viewModel.selectedSession.value
     val facility = viewModel.facility.value
     val user = viewModel.user.value
+    val context = LocalContext.current
+    var validationMessage by remember { mutableStateOf("") }
+
     LaunchedEffect(key1 = facilityId) {
         viewModel.init(facilityId)
     }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -63,7 +74,7 @@ fun AppointmentBookingScreen(facilityId: String, navController: NavController) {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO: Handle back action */ }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
@@ -116,8 +127,10 @@ fun AppointmentBookingScreen(facilityId: String, navController: NavController) {
                     onDateTimeSelected = { date, session ->
                         selectedDate = date
                         selectedSession = session
+                        viewModel.onDateTimeSelected(date, session)
                     },
-                    onEditClick = { showDialog = true }
+                    onEditClick = { showDialog = true },
+                    facility
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -135,7 +148,7 @@ fun AppointmentBookingScreen(facilityId: String, navController: NavController) {
                     ){
                         BasicTextField(
                             value = reason,
-                            onValueChange = {viewModel.onChangeReason(it)},
+                            onValueChange = { viewModel.onChangeReason(it) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(100.dp)
@@ -155,34 +168,62 @@ fun AppointmentBookingScreen(facilityId: String, navController: NavController) {
                     }
 
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Phí tư vấn: 200.000 đ",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Phí tư vấn: 200.000đ",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (validationMessage.isNotEmpty()) {
+                    Text(
+                        text = validationMessage,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        navController.navigate(AppointmentHistoryRoute)
+                        viewModel.createAppointment(
+                            onSuccess = {
+                                navController.navigate(AppointmentHistoryRoute)
+                            },
+                            onFailure = {
+                                Toast.makeText(context, "Failed to create appointment", Toast.LENGTH_SHORT).show()
+                            },
+                            onValidationFailure = { message ->
+                                validationMessage = message
+                            }
+                        )
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007bff))
                 ) {
                     Text("Xác nhận đặt hẹn", color = Color.White)
                 }
             }
         }
+
         if (showDialog) {
             AppointmentBookingDialog(
                 onDismiss = { showDialog = false },
                 onConfirm = { date, session ->
-                    selectedDate = date
-                    selectedSession = session
+                    viewModel.onDateTimeSelected(date, session)
                     showDialog = false
-                }
+                },
+                facility.operatingHours
             )
         }
     }
@@ -193,7 +234,8 @@ fun CardBox(
     initialDate: LocalDate?,
     initialTime: Session,
     onDateTimeSelected: (LocalDate, Session) -> Unit,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    facility: Facility
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -203,7 +245,8 @@ fun CardBox(
             onConfirm = { date, session ->
                 onDateTimeSelected(date, session)
                 showDialog = false
-            }
+            },
+            facility.operatingHours
         )
     }
     Column(
@@ -338,9 +381,9 @@ fun SectionWithAvatarAndDetails(
                             if (text != null) {
                                 Text(
                                     text = text,
-                                    fontWeight = if (type.equals("name") ) FontWeight.Bold else FontWeight.Normal,
-                                    fontSize = if (type.equals("name")) 16.sp else 14.sp,
-                                    color = if (type.equals("name")) Color.Black else Color.Gray,
+                                    fontWeight = if (type == "name") FontWeight.Bold else FontWeight.Normal,
+                                    fontSize = if (type == "name") 16.sp else 14.sp,
+                                    color = if (type == "name") Color.Black else Color.Gray,
                                     modifier = Modifier.padding(bottom = 4.dp)
 
                                 )

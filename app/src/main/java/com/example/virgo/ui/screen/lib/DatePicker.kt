@@ -3,17 +3,7 @@ package com.example.virgo.ui.screen.lib
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,53 +27,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.virgo.model.appointment.OperatingHour
 import com.example.virgo.model.lib.Session
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
-fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Session) -> Unit) {
+fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Session) -> Unit, operatingHours: List<OperatingHour>) {
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var selectedSession by remember { mutableStateOf<Session?>(null) }
-    var currentMonth by remember { mutableStateOf(LocalDate.of(2024, 11, 1)) } // Set to November 2024
+    var currentMonth by remember { mutableStateOf(LocalDate.now()) }
 
     val today = LocalDate.now()
     val daysInMonth = currentMonth.lengthOfMonth()
-    val firstDayOfWeek = currentMonth.withDayOfMonth(1).dayOfWeek.value % 7 // Adjust to 0-based index
-
+    val firstDayOfWeek = currentMonth.withDayOfMonth(1).dayOfWeek
 
     val previousMonth = currentMonth.minusMonths(1)
     val daysInPreviousMonth = previousMonth.lengthOfMonth()
-    val leadingDays = (daysInPreviousMonth - firstDayOfWeek + 1..daysInPreviousMonth).toList()
+    val leadingDays = (daysInPreviousMonth - firstDayOfWeek.ordinal + 1..daysInPreviousMonth).toList()
 
     val currentMonthDays = (1..daysInMonth).toList()
 
-    // Dates for the next month to fill the trailing empty slots if needed
     val trailingDays = (1..(7 - (leadingDays.size + currentMonthDays.size) % 7) % 7).toList()
 
-    // Combine all days into a single list with a flag to indicate if they belong to the current month
     val calendarDays = leadingDays.map { it to false } + currentMonthDays.map { it to true } + trailingDays.map { it to false }
 
-    // Define weekday and weekend operating hours
-    val weekdayHours = listOf(
-        Session(7, 9),
-        Session(9, 11),
-        Session(13, 15),
-        Session(15, 18)
-    )
-    val weekendHours = listOf(
-        Session(7, 9),
-        Session(9, 11),
-        Session(13, 15),
-        Session(15, 17)
-    )
-
-    // Determine available time slots based on the selected date
-    val availableSessions = when (selectedDate?.dayOfWeek) {
-        DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY -> weekdayHours
-        DayOfWeek.SATURDAY, DayOfWeek.SUNDAY -> weekendHours
-        else -> emptyList()
-    }
+    val availableSessions = selectedDate?.let { getOperatingHoursForWeek(it, operatingHours) }
 
     Box(
         modifier = Modifier
@@ -171,7 +142,7 @@ fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Sessi
                                         .size(36.dp)
                                         .padding(4.dp)
                                         .background(
-                                            if (isSelected) Color(0xFFD0E8FF) else Color.Transparent,
+                                            if (isSelected && isCurrentMonth) Color(0xFFD0E8FF) else Color.Transparent,
                                             shape = CircleShape
                                         )
                                         .clickable(enabled = isAvailable) { selectedDate = date },
@@ -181,7 +152,7 @@ fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Sessi
                                         text = day.toString(),
                                         fontWeight = if (isAvailable && isCurrentMonth) FontWeight.Bold else FontWeight.Normal,
                                         color = when {
-                                            isSelected -> Color(0xFF007BFF)
+                                            isSelected && isCurrentMonth-> Color(0xFF007BFF)
                                             isCurrentMonth -> Color.Black
                                             else -> Color.Gray.copy(alpha = 0.5f) // Faded for non-current month days
                                         }
@@ -208,42 +179,44 @@ fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Sessi
                     color = Color.Black
                 )
 
-                if (availableSessions.isEmpty()) {
-                    Text(
-                        "Vui lòng chọn ngày để xem các thời gian trống",
-                        fontSize = 12.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                } else {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    ) {
-                        availableSessions.chunked(2).forEach { rowSlots ->
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                rowSlots.forEach { slot ->
-                                    val session = Session(slot.fromHour, slot.toHour)
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .clip(RoundedCornerShape(20.dp))
-                                            .background(
-                                                if (selectedSession == session) Color(0xFFD0E8FF) else Color.LightGray
+                if (availableSessions != null) {
+                    if (availableSessions.isEmpty()) {
+                        Text(
+                            "Vui lòng chọn ngày để xem các thời gian trống",
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    } else {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        ) {
+                            availableSessions.chunked(2).forEach { rowSlots ->
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    rowSlots.forEach { slot ->
+                                        val session = Session(slot.fromHour, slot.toHour)
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .clip(RoundedCornerShape(20.dp))
+                                                .background(
+                                                    if (selectedSession == session) Color(0xFFD0E8FF) else Color.LightGray
+                                                )
+                                                .clickable { selectedSession = session },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = session.toString(),
+                                                color = if (selectedSession == session) Color(0xFF007BFF) else Color.Black,
+                                                fontWeight = if (selectedSession == session) FontWeight.Bold else FontWeight.Normal,
+                                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                                textAlign = TextAlign.Center
                                             )
-                                            .clickable { selectedSession = session },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = session.toString(),
-                                            color = if (selectedSession == session) Color(0xFF007BFF) else Color.Black,
-                                            fontWeight = if (selectedSession == session) FontWeight.Bold else FontWeight.Normal,
-                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                            textAlign = TextAlign.Center
-                                        )
+                                        }
                                     }
                                 }
                             }
@@ -258,8 +231,8 @@ fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Sessi
             Button(
                 onClick = {
                     selectedDate?.let { date ->
-                        selectedSession?.let { Session ->
-                            onConfirm(date, Session)
+                        selectedSession?.let { session ->
+                            onConfirm(date, session)
                         }
                     }
                 },
@@ -273,4 +246,29 @@ fun AppointmentBookingDialog(onDismiss: () -> Unit, onConfirm: (LocalDate, Sessi
             }
         }
     }
+}
+
+// Hàm chuyển đổi từ String thành DayOfWeek
+fun String.toDayOfWeek(): DayOfWeek? {
+    return DayOfWeek.values().find {
+        it.getDisplayName(TextStyle.FULL, Locale.ENGLISH).equals(this, ignoreCase = true)
+    }
+}
+
+// Hàm lấy giờ làm việc cho ngày trong tuần
+fun getOperatingHoursForWeek(selectedDate: LocalDate, operatingHours: List<OperatingHour>): List<Session> {
+    val selectedDayOfWeek = selectedDate.dayOfWeek
+    val availableSessions = mutableListOf<Session>()
+
+    operatingHours.forEach { operatingHour ->
+        val fromDayOfWeek = operatingHour.fromDay?.toDayOfWeek()
+        val toDayOfWeek = operatingHour.toDay?.toDayOfWeek()
+
+        if (fromDayOfWeek != null && toDayOfWeek != null) {
+            if (selectedDayOfWeek >= fromDayOfWeek && selectedDayOfWeek <= toDayOfWeek) {
+                availableSessions.addAll(operatingHour.sessions)
+            }
+        }
+    }
+    return availableSessions
 }

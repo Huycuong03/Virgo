@@ -16,13 +16,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.draw.clip
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.virgo.R
 import com.example.virgo.model.appointment.Appointment
+import com.example.virgo.route.HomeRoute
 import com.example.virgo.viewModel.appointment.AppointmentHistoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,10 +31,10 @@ import com.example.virgo.viewModel.appointment.AppointmentHistoryViewModel
 fun AppointmentHistoryScreen(
     navController: NavController
 ) {
-    val viewModel : AppointmentHistoryViewModel = viewModel()
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    val viewModel: AppointmentHistoryViewModel = viewModel()
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Sắp đến", "Hoàn thành", "Đã hủy")
-    var snackbarVisible by remember { mutableStateOf(false)}
+    var snackbarVisible by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf("") }
 
     val appointments = viewModel.appointmentList.value
@@ -42,9 +43,11 @@ fun AppointmentHistoryScreen(
         snackbarMessage = "Lịch hẹn đã được hủy thành công."
         snackbarVisible = true
     }
+
     LaunchedEffect(key1 = "") {
         viewModel.init()
     }
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = SnackbarHostState()) },
         topBar = {
@@ -52,8 +55,8 @@ fun AppointmentHistoryScreen(
                 title = { Text("Lịch sử đặt hẹn") },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF1F5FB)),
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = { navController.navigate(HomeRoute) }) {
+                        Icon(Icons.Filled.Home, contentDescription = "Home")
                     }
                 }
             )
@@ -83,11 +86,7 @@ fun AppointmentHistoryScreen(
 
             AppointmentList(
                 appointments = filteredAppointments,
-                onCancelAppointment = { appointment ->
-                    onCancelAppointment(appointment)
-                    snackbarMessage = "Lịch hẹn đã được hủy thành công."
-                    snackbarVisible = true
-                },
+                onCancelAppointment = onCancelAppointment,
                 showCancelOption = selectedTabIndex == 0
             )
         }
@@ -107,7 +106,6 @@ fun AppointmentHistoryScreen(
         }
     }
 }
-
 @Composable
 fun AppointmentList(
     appointments: List<Appointment>,
