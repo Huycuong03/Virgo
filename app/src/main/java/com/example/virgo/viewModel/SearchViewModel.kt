@@ -69,7 +69,7 @@ class SearchViewModel : ViewModel() {
 
         db.collection("products").get().addOnSuccessListener { documents ->
             for (doc in documents) {
-                val product = doc.toObject<Product>()
+                val product = doc.toObject<Product>().copy(id = doc.id)
                 _productList.add(product)
             }
         }

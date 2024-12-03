@@ -74,9 +74,6 @@ fun HomeScreen(navController: NavController) {
     val articles = viewModel.articleList.value
     val products = viewModel.productList.value
 
-    LaunchedEffect("") {
-        viewModel.fetchArticle_And_Product()
-    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -112,24 +109,24 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Column(modifier = Modifier.fillMaxWidth())
-            {
+//            Column(modifier = Modifier.fillMaxWidth())
+//            {
 //                upcomingReminders.forEach { reminder ->
 //                    ReminderBox(time = reminder.time, title = reminder.title, date = reminder.date)
 //                }
-
-                Spacer(modifier = Modifier.height(5.dp))
-
-                Text(
-                    text = "Xem thêm",
-                    fontSize = 14.sp,
-                    color = Color.Blue,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier
-                        .clickable {}
-                        .align(Alignment.CenterHorizontally)
-                )
-            }
+//
+//                Spacer(modifier = Modifier.height(5.dp))
+//
+//                Text(
+//                    text = "Xem thêm",
+//                    fontSize = 14.sp,
+//                    color = Color.Blue,
+//                    fontWeight = FontWeight.Medium,
+//                    modifier = Modifier
+//                        .clickable {}
+//                        .align(Alignment.CenterHorizontally)
+//                )
+//            }
             Column(modifier = Modifier.fillMaxWidth())
             {
                 Text(

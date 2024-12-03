@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.virgo.model.appointment.Facility
 import com.example.virgo.model.appointment.OperatingHour
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

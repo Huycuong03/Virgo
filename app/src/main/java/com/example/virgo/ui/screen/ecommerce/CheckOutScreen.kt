@@ -1,31 +1,26 @@
 package com.example.virgo.ui.screen.ecommerce
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,33 +28,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.virgo.R
 import com.example.virgo.model.ecommerce.Product
 import com.example.virgo.model.ecommerce.ProductWithQuantity
+import com.example.virgo.route.ecommerce.CartRoute
 import com.example.virgo.ui.theme.ColorAccent
-import com.example.virgo.ui.theme.VirgoTheme
-import com.example.virgo.viewModel.CartViewModel
+import com.example.virgo.viewModel.ecommerce.CartViewModel
+import com.example.virgo.viewModel.ecommerce.CheckOutViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CheckOutScreen() {
-    val products = remember {
-        mutableStateListOf<Product>()
+fun CheckOutScreen(cartItemIdList: List<String>, navController: NavController) {
+    val viewModel : CheckOutViewModel = viewModel()
+    val cartItems = viewModel.cartItems.value
+    val merchandiseSubtotal = cartItems.map { (it.quantity?:1) * (it.product?.price?:1f) }.sum()
+    val shippingFee = 0f
+    val total = merchandiseSubtotal + shippingFee
+
+    LaunchedEffect(key1 = cartItemIdList) {
+        viewModel.loadCartItems(cartItemIdList)
     }
-    val viewModel : CartViewModel = viewModel()
-    val productsWithQuantities = viewModel.productsWithQuantities.value
-    val totalSum = viewModel.totalSum.value
-    val selectAllChecked = viewModel.selectAllChecked.value
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -84,7 +81,11 @@ fun CheckOutScreen() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
-                        onClick = { /* Handle checkout logic */ },
+                        onClick = {
+                            viewModel.checkout(total = total) {
+                                navController.navigate(CartRoute)
+                            }
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = ColorAccent)
                     ) {
                         Text("Thanh toán", color = colorResource(id = R.color.white))
@@ -168,17 +169,8 @@ fun CheckOutScreen() {
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            item {
-                TextButton(onClick = { /* TODO: Handle change delivery method */ }) {
-                    Text(text = "Thêm mặt hàng", color = ColorAccent)
-                }
-            }
-
-            // Product List Section
-            val selectedProducts = productsWithQuantities.filter { it.selected == true }
-
-            items(selectedProducts) { product ->
-                ProductItem1(product)
+            items(cartItems) { cartItem ->
+                ProductItem1(cartItem)
             }
 
             item {
@@ -186,7 +178,11 @@ fun CheckOutScreen() {
             }
 
             item {
-                PaymentInfoScreen()
+                PaymentInfoScreen(
+                    merchandiseSubtotal = merchandiseSubtotal,
+                    shippingFee = shippingFee,
+                    total = total
+                )
             }
         }
     }
@@ -217,7 +213,11 @@ fun ProductItem1(product: ProductWithQuantity) {
 }
 
 @Composable
-fun PaymentInfoScreen() {
+fun PaymentInfoScreen(
+    merchandiseSubtotal: Float,
+    shippingFee: Float,
+    total: Float
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -243,13 +243,13 @@ fun PaymentInfoScreen() {
             Spacer(modifier = Modifier.height(8.dp))
 
             // Payment Details Rows
-            PaymentDetailRow("Tổng tiền", "570.000đ", isBold = true)
-            PaymentDetailRow("Phí vận chuyển", "Miễn phí", Color(0xFF007BFF))
+            PaymentDetailRow("Tổng tiền", merchandiseSubtotal.toString(), isBold = true)
+            PaymentDetailRow("Phí vận chuyển", shippingFee.toString() , Color(0xFF007BFF))
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Total Amount Row
-            PaymentDetailRow("Thành tiền", "570.000đ", isBold = true)
+            PaymentDetailRow("Thành tiền", total.toString(), isBold = true)
         }
 
         Spacer(modifier = Modifier.height(16.dp))

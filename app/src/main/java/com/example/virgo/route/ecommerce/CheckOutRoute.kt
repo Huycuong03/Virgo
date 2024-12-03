@@ -3,4 +3,6 @@ package com.example.virgo.route.ecommerce
 import kotlinx.serialization.Serializable
 
 @Serializable
-object CheckOutRoute
+data class CheckOutRoute (
+    val cartItemIdList: List<String>
+)
