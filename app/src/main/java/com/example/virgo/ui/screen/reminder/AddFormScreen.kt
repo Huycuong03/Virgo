@@ -17,21 +17,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.virgo.model.ecommerce.Product
 import com.example.virgo.model.ecommerce.ProductWithQuantity
+import com.example.virgo.route.reminder.ReminderListRoute
 import com.example.virgo.viewModel.reminder.AddReminderViewModel
 import java.time.LocalDate
 
 @Composable
 fun AddFormScreen(
-    reminders: List<ProductWithQuantity>,
-    onAddReminder: () -> Unit,
-    onSchedule: () -> Unit,
-    onDelete: (ProductWithQuantity) -> Unit
+    productIDs: List<String>,
+    navController: NavController
 ) {
     var showDosageDialog by remember { mutableStateOf(false) }
     var showScheduleDialog by remember { mutableStateOf(false) }
     var selectedReminder by remember { mutableStateOf<ProductWithQuantity?>(null) }
+
 
     // Dismiss dialog handlers
     val onDismissDosageDialog = { showDosageDialog = false }
@@ -44,8 +45,7 @@ fun AddFormScreen(
     val duration = viewModel.duration.value
     val skip = viewModel.skip.value
     val alarms = viewModel.alarms.value
-    val products = viewModel.products.value
-
+    val reminders = viewModel.products.value
 
     // Save handlers
     val onSaveDosage = {
@@ -102,7 +102,9 @@ fun AddFormScreen(
             items(reminders) { reminder ->
                 ReminderRow(
                     reminder = reminder,
-                    onDelete = onDelete,
+                    onDelete = {
+                        viewModel.deleteProduct(reminder)
+                    },
                     onDosageClick = {
                         selectedReminder = reminder
                         showDosageDialog = true
@@ -118,13 +120,18 @@ fun AddFormScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(onClick = onAddReminder, modifier = Modifier.weight(1f)) {
+            Button(onClick = {navController.popBackStack()}, modifier = Modifier.weight(1f)) {
                 Text("Thêm thuốc", fontSize = 12.sp)
             }
             Button(onClick = { showScheduleDialog = true }, modifier = Modifier.weight(1f)) {
                 Text("Hẹn giờ", fontSize = 12.sp)
             }
-            Button(onClick = onSchedule, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = {
+                    viewModel.addReminder()
+                    navController.navigate(ReminderListRoute)
+                }
+                ,modifier = Modifier.weight(1f)) {
                 Text("Tiếp tục", fontSize = 12.sp)
             }
         }

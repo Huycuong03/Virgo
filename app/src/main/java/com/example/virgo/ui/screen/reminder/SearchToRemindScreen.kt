@@ -15,17 +15,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.virgo.model.ecommerce.Product
+import com.example.virgo.route.reminder.AddFormRoute
 import com.example.virgo.ui.screen.lib.NavIcon
 import com.example.virgo.ui.screen.lib.TopBar
 import com.example.virgo.viewModel.SearchViewModel
 
 @Composable
-fun SearchToReminderScreen() {
+fun SearchToReminderScreen(navController: NavController) {
     val viewModel: SearchViewModel = viewModel()
     val searchText = viewModel.searchText.value
     val productResultList = viewModel.productResultList.value
-    val addedProducts = remember { mutableStateListOf<Product>() } // List to track added products
+    val addedProductID = viewModel.addedProductID.value
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -34,7 +36,7 @@ fun SearchToReminderScreen() {
         TopBar(
             leadingIcon = {
                 NavIcon {
-
+                    navController.popBackStack()
                 }
             },
             title = {
@@ -89,8 +91,8 @@ fun SearchToReminderScreen() {
                             ProductRow(
                                 product = product,
                                 onAddToReminder = { addedProduct ->
-                                    if (!addedProducts.contains(addedProduct)) {
-                                        addedProducts.add(addedProduct) // Add product to list
+                                    if (!addedProductID.contains(addedProduct.id)) {
+                                        viewModel.addProduct(addedProduct)
                                     }
                                 }
                             )
@@ -101,7 +103,7 @@ fun SearchToReminderScreen() {
 
                     Button(
                         onClick = {
-                            // Pass addedProducts list to the next UI/screen
+                            navController.navigate(AddFormRoute(addedProductID))
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {

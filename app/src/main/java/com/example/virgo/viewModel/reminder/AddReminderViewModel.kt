@@ -7,8 +7,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.virgo.model.ecommerce.Product
 import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.example.virgo.sqlite.ReminderDatabaseHelper
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -38,7 +41,7 @@ class AddReminderViewModel() : ViewModel() {
     val alarms: State<List<String>> get() = derivedStateOf {
         _alarms.toList()
     }
-
+    val db = FirebaseFirestore.getInstance()
     private val _products = mutableStateListOf<ProductWithQuantity>()
     val products: State<List<ProductWithQuantity>> get() = derivedStateOf {
         _products.toList()
@@ -48,6 +51,21 @@ class AddReminderViewModel() : ViewModel() {
         dbHelper = ReminderDatabaseHelper(context)
     }
 
+    fun fetchProducts(ids: List<String>){
+        db.collection("products").get().addOnSuccessListener { documents ->
+            for (doc in documents) {
+                val product = doc.toObject<Product>()
+                if(product.id in ids){
+                    val productWithQuantity = ProductWithQuantity(product, 0, false)
+                    _products.add(productWithQuantity)
+                }
+
+            }
+        }
+    }
+    fun deleteProduct(product: ProductWithQuantity){
+        _products.remove(product)
+    }
     fun addReminder() {
         viewModelScope.launch(Dispatchers.IO) {
             dbHelper.createReminder(_name.value, _dateCreated.value, _duration.value, _skip.value, _note.value, _isActive.value, _alarms, _products)

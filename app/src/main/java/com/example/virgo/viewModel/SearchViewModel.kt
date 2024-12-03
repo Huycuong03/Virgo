@@ -26,6 +26,8 @@ class SearchViewModel : ViewModel() {
     private val _articleResultList = mutableStateListOf<Article>()
     private val _recentSearches = mutableStateListOf<String>()
     private val _frequentSearches = mutableStateListOf<String>()
+    private val _addedProductID = mutableStateListOf<String>()
+
 
     val searchText: State<String> get() = _searchText
     val recentSearches: State<List<String>> get() = derivedStateOf {
@@ -40,7 +42,9 @@ class SearchViewModel : ViewModel() {
     val articleResultList: State<List<Article>> get() = derivedStateOf {
         _articleResultList.toList()
     }
-
+    val addedProductID : State<List<String>> get() = derivedStateOf {
+        _addedProductID.toList()
+    }
     init {
         val db = FirebaseFirestore.getInstance()
         val ref = FirebaseDatabase.getInstance("https://virgo-238d4-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("searches")
@@ -98,5 +102,8 @@ class SearchViewModel : ViewModel() {
                 _articleResultList.add(article)
             }
         }
+    }
+    fun addProduct(product: Product){
+        product.id?.let { _addedProductID.add(it) }
     }
 }

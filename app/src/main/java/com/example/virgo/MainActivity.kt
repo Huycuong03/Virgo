@@ -52,7 +52,9 @@ import com.example.virgo.route.ecommerce.CompletedOrderRoute
 import com.example.virgo.route.ecommerce.PrescriptionRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
 import com.example.virgo.route.profile.ProfileRoute
+import com.example.virgo.route.reminder.AddFormRoute
 import com.example.virgo.route.reminder.ReminderListRoute
+import com.example.virgo.route.reminder.SearchToReminderRoute
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.screen.appointment.AppointmentBookingScreen
 import com.example.virgo.ui.screen.appointment.FacilityDetailScreen
@@ -65,7 +67,9 @@ import com.example.virgo.ui.screen.ecommerce.CheckOutScreen
 import com.example.virgo.ui.screen.ecommerce.UploadPrescriptionScreen
 import com.example.virgo.ui.screen.profile.AppointmentHistoryScreen
 import com.example.virgo.ui.screen.profile.ProfileScreen
+import com.example.virgo.ui.screen.reminder.AddFormScreen
 import com.example.virgo.ui.screen.reminder.ReminderListScreen
+import com.example.virgo.ui.screen.reminder.SearchToReminderScreen
 import com.example.virgo.ui.screen.telemedicine.TelemedicineScreen
 import com.example.virgo.ui.screen.tracking.ConpletedOrder
 import com.example.virgo.ui.theme.VirgoTheme
@@ -182,6 +186,13 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<ReminderListRoute> {
                             ReminderListScreen(navController.context, navController)
+                        }
+                        composable<SearchToReminderRoute> {
+                            SearchToReminderScreen(navController)
+                        }
+                        composable<AddFormRoute> {
+                            val productIDs = it.toRoute<AddFormRoute>().products
+                            AddFormScreen(productIDs, navController)
                         }
                     }
                 }

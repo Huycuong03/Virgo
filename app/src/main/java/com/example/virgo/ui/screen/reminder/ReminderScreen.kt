@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.example.virgo.route.reminder.SearchToReminderRoute
 import com.example.virgo.sqlite.ReminderDatabaseHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +63,7 @@ fun ReminderListScreen(context: Context, navController: NavController) {
                     Button(onClick = { /* Navigate to Reminder Home Page */ }) {
                         Text("Reminder Home")
                     }
-                    Button(onClick = { /* Add Reminder Logic Here */ }) {
+                    Button(onClick = { navController.navigate(SearchToReminderRoute)}) {
                         Text("Add Reminder")
                     }
                 }
