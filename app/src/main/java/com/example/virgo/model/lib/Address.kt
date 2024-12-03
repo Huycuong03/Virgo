@@ -4,6 +4,8 @@ import com.google.firebase.database.IgnoreExtraProperties
 
 @IgnoreExtraProperties
 data class Address(
+    val name: String? = null,
+    val phoneNumber: String? = null,
     val city: String? = null,
     val district: String? = null,
     val ward: String? = null,
