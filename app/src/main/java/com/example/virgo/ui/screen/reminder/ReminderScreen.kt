@@ -1,5 +1,6 @@
 package com.example.virgo.ui.screen.reminder
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,13 +14,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.text.intl.Locale
+import androidx.lifecycle.ViewModel
+import com.example.virgo.sqlite.ReminderDatabaseHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderHome() {
-    val activeReminders = remember { mutableStateListOf("Reminder 1", "Reminder 2") }
-    val inactiveReminders = remember { mutableStateListOf("Reminder A", "Reminder B") }
+fun ReminderHome(context: Context) {
+    val dbHelper = ReminderDatabaseHelper(context)
+    val db = dbHelper.readableDatabase
 
+    val activeReminders = remember { mutableStateListOf<String>() }
+    val inactiveReminders = remember { mutableStateListOf<String>() }
+
+    LaunchedEffect(Unit) {
+        activeReminders.clear()
+        inactiveReminders.clear()
+        activeReminders.addAll(dbHelper.getActiveReminders(db)) // Get active reminders
+        inactiveReminders.addAll(dbHelper.getInactiveReminders(db)) // Get inactive reminders
+    }
     var showActive by remember { mutableStateOf(true) }
 
     Scaffold(
@@ -112,11 +125,6 @@ fun ReminderHome() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ReminderHomePreview() {
-    ReminderHome()
-}
 
 
 

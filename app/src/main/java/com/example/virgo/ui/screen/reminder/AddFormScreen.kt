@@ -16,56 +16,81 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
+import com.example.virgo.model.ecommerce.Product
+import com.example.virgo.model.ecommerce.ProductWithQuantity
+import com.example.virgo.viewModel.reminder.AddReminderViewModel
 import java.time.LocalDate
 
-// Main form screen with reminders
 @Composable
 fun AddFormScreen(
-    reminders: List<Product>,
+    reminders: List<ProductWithQuantity>,
     onAddReminder: () -> Unit,
     onSchedule: () -> Unit,
-    onDelete: (Product) -> Unit
+    onDelete: (ProductWithQuantity) -> Unit
 ) {
     var showDosageDialog by remember { mutableStateOf(false) }
-    var selectedReminder by remember { mutableStateOf<Product?>(null) }
+    var showScheduleDialog by remember { mutableStateOf(false) }
+    var selectedReminder by remember { mutableStateOf<ProductWithQuantity?>(null) }
 
-    // Define the functions for dismissing and saving the dosage
-    val onDismissDialog = {
+    // Dismiss dialog handlers
+    val onDismissDosageDialog = { showDosageDialog = false }
+    val onDismissScheduleDialog = { showScheduleDialog = false }
+
+    val viewModel = AddReminderViewModel()
+
+    val name = viewModel.name.value
+    val dateCreated = viewModel.dateCreated.value
+    val duration = viewModel.duration.value
+    val skip = viewModel.skip.value
+    val alarms = viewModel.alarms.value
+    val products = viewModel.products.value
+
+
+    // Save handlers
+    val onSaveDosage = {
+        // Save dosage logic
         showDosageDialog = false
     }
 
-    val onSaveDosage = {
-        // Handle saving the dosage logic here, e.g., updating the reminder
-        showDosageDialog = false
+    val onSaveSchedule = {
+        // Save schedule logic
+        showScheduleDialog = false
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // Reminder name and start date
         TextField(
-            value = "Đơn thuốc ngày ${LocalDate.now()}",
-            onValueChange = {},
+            value = name,
+            onValueChange = {viewModel.onChangeName(it)},
             label = { Text("Tên đơn thuốc") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = false
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Row for "Ngày bắt đầu" and "Số ngày uống"
+        TextField(
+            value = dateCreated,
+            onValueChange = {},
+            label = { Text("Ngày bắt đầu") },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = false
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Start date
             TextField(
-                value = LocalDate.now().toString(),
-                onValueChange = {},
-                label = { Text("Ngày bắt đầu") },
+                value = if (duration == 0) "" else duration.toString(),
+                onValueChange = {viewModel.onChangeDuration(it.toInt())},
+                label = { Text("Số ngày uống") },
                 modifier = Modifier.weight(1f)
             )
-            // Number of days duration
             TextField(
-                value = "",
-                onValueChange = {},
-                label = { Text("Số ngày uống") },
+                value = if (skip == 0) "" else skip.toString(),
+                onValueChange = {viewModel.onChangeSkip(it.toInt())},
+                label = { Text("Số ngày nghỉ") },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -75,10 +100,14 @@ fun AddFormScreen(
         // Reminder list
         LazyColumn {
             items(reminders) { reminder ->
-                ReminderRow(reminder = reminder, onDelete = onDelete, onDosageClick = {
-                    selectedReminder = reminder
-                    showDosageDialog = true
-                })
+                ReminderRow(
+                    reminder = reminder,
+                    onDelete = onDelete,
+                    onDosageClick = {
+                        selectedReminder = reminder
+                        showDosageDialog = true
+                    }
+                )
             }
         }
 
@@ -87,30 +116,45 @@ fun AddFormScreen(
         // Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(onClick = onAddReminder, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                Text("Thêm thuốc")
+            Button(onClick = onAddReminder, modifier = Modifier.weight(1f)) {
+                Text("Thêm thuốc", fontSize = 12.sp)
             }
-            Button(onClick = onSchedule, modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                Text("Hẹn giờ")
+            Button(onClick = { showScheduleDialog = true }, modifier = Modifier.weight(1f)) {
+                Text("Hẹn giờ", fontSize = 12.sp)
+            }
+            Button(onClick = onSchedule, modifier = Modifier.weight(1f)) {
+                Text("Tiếp tục", fontSize = 12.sp)
             }
         }
     }
 
-    // Dosage Dialog (Slide window)
+    // Dialogs
     if (showDosageDialog && selectedReminder != null) {
         DosageDialog(
-            reminder = selectedReminder, // Pass the selected reminder for dosage input
-            onDismiss = onDismissDialog,
-            onSaveDosage = onSaveDosage
+            reminder = selectedReminder,
+            onDismiss = onDismissDosageDialog,
+            onSaveDosage = {
+                viewModel.onChangeQuantity(selectedReminder!!.copy(quantity = it))
+            }
+        )
+    }
+
+    if (showScheduleDialog) {
+        ScheduleDialog(
+            onDismiss = onDismissScheduleDialog,
+            onSaveSchedule = {
+                viewModel.onChangeAlarm(it)
+            }
         )
     }
 }
 
+
 // Reminder Row with Delete button and Thêm liều lượng button
 @Composable
-fun ReminderRow(reminder: Product, onDelete: (Product) -> Unit, onDosageClick: () -> Unit) {
+fun ReminderRow(reminder: ProductWithQuantity, onDelete: (ProductWithQuantity) -> Unit, onDosageClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -127,18 +171,22 @@ fun ReminderRow(reminder: Product, onDelete: (Product) -> Unit, onDosageClick: (
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = reminder.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = reminder.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    reminder.product?.name?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    reminder.product?.description?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
                 IconButton(onClick = { onDelete(reminder) }) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
@@ -158,18 +206,62 @@ fun ReminderRow(reminder: Product, onDelete: (Product) -> Unit, onDosageClick: (
     }
 }
 
-// Slide window dialog for dosage input
 @Composable
 fun DosageDialog(
-    reminder: Product?,
+    reminder: ProductWithQuantity?,
     onDismiss: () -> Unit,
-    onSaveDosage: () -> Unit
+    onSaveDosage: (Int) -> Unit
 ) {
-    var morning by remember { mutableStateOf("") }
-    var noon by remember { mutableStateOf("") }
-    var afternoon by remember { mutableStateOf("") }
-    var evening by remember { mutableStateOf("") }
-    var selectedMealTime by remember { mutableStateOf("Trước ăn") }
+    var dosageAmount by remember { mutableStateOf(0) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = { onSaveDosage(dosageAmount) }) {
+                Text("Xong")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Hủy")
+            }
+        },
+        title = { Text("Thêm liều lượng") },
+        text = {
+            Column {
+                Text("Tên sản phẩm: ${reminder?.product?.name ?: ""}")
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = dosageAmount.toString(),
+                    onValueChange = { dosageAmount = it.toInt() },
+                    label = { Text("Liều lượng") }
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun ScheduleDialog(
+    onDismiss: () -> Unit,
+    onSaveSchedule: (List<Int>) -> Unit
+) {
+    var morningSelected by remember { mutableStateOf(0) }
+    var noonSelected by remember { mutableStateOf(0) }
+    var afternoonSelected by remember { mutableStateOf(0) }
+    var eveningSelected by remember { mutableStateOf(0) }
+    var selectedMealTime by remember { mutableStateOf(0) }
+
+    fun check(x: Int): Boolean{
+        return if (x==1) true else false
+    }
+    fun transfer(x: Boolean): Int{
+        return if(x) 1 else 0
+    }
+
+    fun transferNote(x: String): Int{
+        return if (x=="Trước ăn") 0 else 1
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Apply blur effect to the AddFormScreen content
@@ -197,16 +289,11 @@ fun DosageDialog(
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Default.Delete, contentDescription = "Close")
                 }
-                Text("Thêm liều lượng", style = MaterialTheme.typography.headlineMedium)
-                Button(onClick = onSaveDosage) {
+                Text("Hẹn giờ nhắc", style = MaterialTheme.typography.headlineMedium)
+                Button(onClick = { onSaveSchedule(arrayListOf(morningSelected, noonSelected, afternoonSelected, eveningSelected, selectedMealTime)) }) {
                     Text("Xong")
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Product name
-            Text("Tên sản phẩm: ${reminder?.name ?: ""}", style = MaterialTheme.typography.bodyMedium)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -220,13 +307,12 @@ fun DosageDialog(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically)
-                    {
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text("Sáng:")
-                        BasicTextField(
-                            value = morning,
-                            onValueChange = { morning = it },
-                            modifier = Modifier.fillMaxWidth().padding(5.dp)
+                        Checkbox(
+                            checked = check(morningSelected),
+                            onCheckedChange = { morningSelected = transfer(it) }
                         )
                     }
 
@@ -235,13 +321,13 @@ fun DosageDialog(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically)
-                    {
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text("Trưa:")
-                        BasicTextField(
-                            value = noon,
-                            onValueChange = { noon = it },
-                            modifier = Modifier.fillMaxWidth().padding(5.dp)
+                        Checkbox(
+                            checked = check(noonSelected),
+                            onCheckedChange = { noonSelected = transfer(it) },
+                            modifier = Modifier.padding(start = 3.dp)
                         )
                     }
                 }
@@ -251,13 +337,12 @@ fun DosageDialog(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically)
-                    {
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text("Chiều:")
-                        BasicTextField(
-                            value = afternoon,
-                            onValueChange = { afternoon = it },
-                            modifier = Modifier.fillMaxWidth().padding(5.dp)
+                        Checkbox(
+                            checked = check(afternoonSelected),
+                            onCheckedChange = { afternoonSelected = transfer(it) }
                         )
                     }
 
@@ -266,18 +351,17 @@ fun DosageDialog(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically)
-                    {
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text("Tối:")
-                        BasicTextField(
-                            value = evening,
-                            onValueChange = { evening = it },
-                            modifier = Modifier.fillMaxWidth().padding(5.dp)
+                        Checkbox(
+                            checked = check(eveningSelected),
+                            onCheckedChange = { eveningSelected = transfer(it) },
+                            modifier = Modifier.padding(start = 15.dp)
                         )
                     }
                 }
             }
-
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -287,10 +371,10 @@ fun DosageDialog(
             ) {
                 // "Trước ăn" button
                 Button(
-                    onClick = { selectedMealTime = "Trước ăn" },
+                    onClick = { selectedMealTime = 0},
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedMealTime == "Trước ăn") Color.Blue else Color.Gray,
-                        contentColor = if (selectedMealTime == "Trước ăn") Color.White else Color.Black
+                        containerColor = if (selectedMealTime == transferNote("Trước ăn")) Color.Blue else Color.Gray,
+                        contentColor = if (selectedMealTime == transferNote("Trước ăn")) Color.White else Color.Black
                     ),
                     modifier = Modifier.weight(1f)
                 ) {
@@ -299,10 +383,10 @@ fun DosageDialog(
 
                 // "Sau ăn" button
                 Button(
-                    onClick = { selectedMealTime = "Sau ăn" },
+                    onClick = { selectedMealTime = 1},
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedMealTime == "Sau ăn") Color.Blue else Color.Gray,
-                        contentColor = if (selectedMealTime == "Sau ăn") Color.White else Color.Black
+                        containerColor = if (selectedMealTime == transferNote("Sau ăn")) Color.Blue else Color.Gray,
+                        contentColor = if (selectedMealTime == transferNote("Sau ăn")) Color.White else Color.Black
                     ),
                     modifier = Modifier.weight(1f)
                 ) {
@@ -311,20 +395,4 @@ fun DosageDialog(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AddFormPreview() {
-    val reminders = listOf(
-        Product(name = "Medicine 1", description = "ABC"),
-        Product(name = "Medicine 2", description = "XYZ")
-    )
-
-    AddFormScreen(
-        reminders = reminders,
-        onAddReminder = { /* Handle add reminder action */ },
-        onSchedule = { /* Handle schedule action */ },
-        onDelete = { /* Handle delete action */ }
-    )
 }
