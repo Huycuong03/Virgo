@@ -1,6 +1,7 @@
 package com.example.virgo.ui.screen.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -11,16 +12,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.virgo.R
 import com.example.virgo.model.User
 import com.example.virgo.model.ecommerce.OrderStatus
+import com.example.virgo.route.appointment.AppointmentHistoryRoute
 import com.example.virgo.route.profile.OrderTrackingRoute
+import com.example.virgo.route.profile.PersonalInformationRoute
 import com.example.virgo.viewModel.profile.ProfileViewModel
 
 @Composable
@@ -33,10 +41,10 @@ fun ProfileScreen(navController: NavController) {
             .background(Color(0xFFEFEFEF))
     ) {
         ProfileHeader(user)
-        OrderSection() {
+        OrderSection {
             navController.navigate(OrderTrackingRoute(status = it))
         }
-        AccountSection()
+        AccountSection(navController)
     }
 }
 
@@ -49,14 +57,12 @@ fun ProfileHeader(user: User) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = "User Icon",
-            modifier = Modifier
-                .size(60.dp)
-                .background(Color.White, CircleShape)
-                .padding(8.dp),
-            tint = Color.Gray
+        AsyncImage(
+            model = (stringResource(id = R.string.github_page) + "/drawable/" + (user.avatarImage?:"image_holder.jpg")),
+            contentDescription = "Image Description",
+            modifier = Modifier.size(80.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = user.name.toString(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -81,23 +87,24 @@ fun OrderSection(onClick: (OrderStatus) -> Unit) {
 }
 
 @Composable
-fun AccountSection() {
+fun AccountSection(navController: NavController) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Tài khoản", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Spacer(modifier = Modifier.height(8.dp))
-        AccountItem(icon = Icons.Default.Person, label = "Thông tin cá nhân")
-        AccountItem(icon = Icons.Default.LocationOn, label = "Quản lý sổ địa chỉ")
-        AccountItem(icon = Icons.Default.DateRange, label = "Lịch sử đặt hẹn")
-        AccountItem(icon = Icons.Default.Favorite, label = "Đơn thuốc của tôi")
+        AccountItem(icon = Icons.Default.Person, label = "Thông tin cá nhân", onClick = {navController.navigate(PersonalInformationRoute)})
+        AccountItem(icon = Icons.Default.LocationOn, label = "Quản lý sổ địa chỉ", onClick = {})
+        AccountItem(icon = Icons.Default.DateRange, label = "Lịch sử đặt hẹn", onClick = {navController.navigate(AppointmentHistoryRoute)})
+        AccountItem(icon = Icons.Default.Favorite, label = "Đơn thuốc của tôi", onClick = {})
     }
 }
 
 @Composable
-fun AccountItem(icon: ImageVector, label: String) {
+fun AccountItem(icon: ImageVector, label: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

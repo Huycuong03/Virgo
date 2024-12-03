@@ -40,6 +40,8 @@ import com.example.virgo.route.ecommerce.CheckOutRoute
 import com.example.virgo.route.profile.OrderTrackingRoute
 import com.example.virgo.route.ecommerce.PrescriptionRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
+import com.example.virgo.route.profile.EditPersonalRoute
+import com.example.virgo.route.profile.PersonalInformationRoute
 import com.example.virgo.route.profile.ProfileRoute
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.screen.appointment.AppointmentBookingScreen
@@ -52,9 +54,11 @@ import com.example.virgo.ui.screen.ecommerce.CartScreen
 import com.example.virgo.ui.screen.ecommerce.CheckOutScreen
 import com.example.virgo.ui.screen.ecommerce.UploadPrescriptionScreen
 import com.example.virgo.ui.screen.profile.AppointmentHistoryScreen
+import com.example.virgo.ui.screen.profile.EditPersonalScreen
 import com.example.virgo.ui.screen.profile.ProfileScreen
 import com.example.virgo.ui.screen.telemedicine.TelemedicineScreen
 import com.example.virgo.ui.screen.profile.OrderTrackingScreen
+import com.example.virgo.ui.screen.profile.PersonalInforScreen
 import com.example.virgo.ui.theme.VirgoTheme
 import kotlin.reflect.typeOf
 
@@ -172,6 +176,12 @@ class MainActivity : ComponentActivity() {
                         ) {
                             val status = it.toRoute<OrderTrackingRoute>().status
                             OrderTrackingScreen(status, navController)
+                        }
+                        composable<PersonalInformationRoute> {
+                            PersonalInforScreen(navController)
+                        }
+                        composable<EditPersonalRoute> {
+                            EditPersonalScreen(navController)
                         }
                     }
                 }

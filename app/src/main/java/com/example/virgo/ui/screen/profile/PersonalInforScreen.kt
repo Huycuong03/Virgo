@@ -1,6 +1,5 @@
 package com.example.virgo.ui.screen.profile
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,16 +10,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.virgo.R
+import com.example.virgo.route.profile.EditPersonalRoute
+import com.example.virgo.route.profile.ProfileRoute
+import com.example.virgo.viewModel.profile.ProfileViewModel
 
 @Composable
-fun PersonalInforScreen() {
+fun PersonalInforScreen(navController: NavController) {
+    val viewModel : ProfileViewModel = viewModel()
+    val user = viewModel.user.value
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,7 +49,10 @@ fun PersonalInforScreen() {
                     tint = Color.White,
                     modifier = Modifier
                         .padding(start = 16.dp)
-                        .clickable { }
+                        .clickable {
+                            navController.popBackStack()
+                            navController.navigate(ProfileRoute)
+                        }
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
@@ -55,12 +65,25 @@ fun PersonalInforScreen() {
                 Spacer(modifier = Modifier.weight(1f))
             }
         }
-        ProfileContent()
+        user.name?.let { user.phoneNumber?.let { it1 ->
+            user.email?.let { it2 ->
+                user.gender?.let { it3 ->
+                    user.avatarImage?.let { it4 ->
+                        ProfileContent(it,
+                            it1, it2, it3, it4,
+                            onClick ={
+                                navController.navigate(EditPersonalRoute)
+                            }
+                        )
+                    }
+                }
+            }
+        } }
     }
 }
 
 @Composable
-fun ProfileContent() {
+fun ProfileContent(name: String, phoneNumber: String, email: String, gender: Boolean,image: String, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -74,33 +97,30 @@ fun ProfileContent() {
             modifier = Modifier
                 .size(100.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.avatar),
-                contentDescription = "Product Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
+            AsyncImage(
+                model = (stringResource(id = R.string.github_page) + "/drawable/" + (image?:"image_holder.jpg")),
+                contentDescription = "Image Description",
+                modifier = Modifier.size(80.dp),
+                contentScale = ContentScale.Crop
             )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        ProfileInfoRow(label = "Họ và tên", value = "Trần Cường")
+        ProfileInfoRow(label = "Họ và tên", value = name)
         HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
-        ProfileInfoRow(label = "Số điện thoại", value = "0389 214 919")
+        ProfileInfoRow(label = "Số điện thoại", value = phoneNumber)
         HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
-        ProfileInfoRow(label = "Email", value = "abc@gmail.com")
+        ProfileInfoRow(label = "Email", value = email)
         HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
-        ProfileInfoRow(label = "Giới tính", value = "Nam")
-        HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
-        ProfileInfoRow(label = "Ngày sinh", value = "30/07/2003")
+        ProfileInfoRow(label = "Giới tính", value = if(gender) "Nam" else "Nữ")
         HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
 
         Spacer(modifier = Modifier.weight(1f))
 
         // Edit Information button
         Button(
-            onClick = { /* TODO: Handle edit action */ },
+            onClick = onClick,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3F2FD)),
             modifier = Modifier
                 .fillMaxWidth()
@@ -139,10 +159,4 @@ fun ProfileInfoRow(label: String, value: String, isLink: Boolean = false) {
             textAlign = TextAlign.End
         )
     }
-}
-
-@Preview (showBackground = true)
-@Composable
-fun PersonalPreview(){
-    PersonalInforScreen()
 }
