@@ -17,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.virgo.model.Order
+import com.example.virgo.ui.theme.VirgoTheme
 
 @Composable
 fun Canceled() {
@@ -103,5 +105,13 @@ fun OrderItemCancel(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun aa(){
+    VirgoTheme {
+        Canceled()
     }
 }

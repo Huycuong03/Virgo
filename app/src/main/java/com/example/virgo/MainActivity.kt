@@ -45,7 +45,11 @@ import com.example.virgo.route.appointment.AppointmentHistoryRoute
 import com.example.virgo.route.appointment.FacilityDetailRoute
 import com.example.virgo.route.appointment.SearchFacilityRoute
 import com.example.virgo.route.ecommerce.CartRoute
+import com.example.virgo.route.ecommerce.CheckOutRoute
+import com.example.virgo.route.ecommerce.CompletedOrderRoute
+import com.example.virgo.route.ecommerce.PrescriptionRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
+import com.example.virgo.route.profile.ProfileRoute
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.screen.appointment.AppointmentBookingScreen
 import com.example.virgo.ui.screen.appointment.FacilityDetailScreen
@@ -54,8 +58,12 @@ import com.example.virgo.ui.screen.article.ArticleScreen
 import com.example.virgo.ui.screen.auth.LoginScreen
 import com.example.virgo.ui.screen.auth.SignUpScreen
 import com.example.virgo.ui.screen.ecommerce.CartScreen
+import com.example.virgo.ui.screen.ecommerce.CheckOutScreen
+import com.example.virgo.ui.screen.ecommerce.UploadPrescriptionScreen
 import com.example.virgo.ui.screen.profile.AppointmentHistoryScreen
+import com.example.virgo.ui.screen.profile.ProfileScreen
 import com.example.virgo.ui.screen.telemedicine.TelemedicineScreen
+import com.example.virgo.ui.screen.tracking.ConpletedOrder
 import com.example.virgo.ui.theme.VirgoTheme
 
 class MainActivity : ComponentActivity() {
@@ -153,7 +161,19 @@ class MainActivity : ComponentActivity() {
                             AppointmentHistoryScreen(navController)
                         }
                         composable<CartRoute> {
-                            CartScreen()
+                            CartScreen(navController)
+                        }
+                        composable<ProfileRoute> {
+                            ProfileScreen(navController)
+                        }
+                        composable<PrescriptionRoute> {
+                            UploadPrescriptionScreen()
+                        }
+                        composable<CheckOutRoute> {
+                            CheckOutScreen()
+                        }
+                        composable<CompletedOrderRoute> {
+                            ConpletedOrder(navController)
                         }
                     }
                 }

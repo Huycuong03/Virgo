@@ -24,4 +24,8 @@ object SharedPreferencesManager {
     fun getBoolean(key: String): Boolean {
         return sharedPreferences?.getBoolean(key, false)?: false
     }
+
+    fun getUID(): String{
+        return sharedPreferences?.getString("uid", null)?:""
+    }
 }

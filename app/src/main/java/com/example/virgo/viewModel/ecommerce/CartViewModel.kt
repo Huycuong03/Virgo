@@ -11,6 +11,8 @@ import com.example.virgo.model.ecommerce.Packaging
 import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.virgo.model.ecommerce.Product
+import com.example.virgo.repository.SharedPreferencesManager
+import com.google.firebase.firestore.FieldValue
 
 class CartViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
@@ -30,7 +32,7 @@ class CartViewModel : ViewModel() {
     }
 
     private fun fetchProductsFromFirestore() {
-        firestore.collection("users").document("hUMo6tRvQ6XcLhDkBOV9A1w6Jvr2")
+        firestore.collection("users").document(SharedPreferencesManager.getUID())
             .get()
             .addOnSuccessListener { document ->
                 // Check if document exists and contains a cart
@@ -121,4 +123,19 @@ class CartViewModel : ViewModel() {
         }
         calculateTotalSum()
     }
+    fun removeProductFromCart(cartItem: ProductWithQuantity) {
+        val userDocRef = firestore.collection("users").document(SharedPreferencesManager.getUID())
+
+        _productsWithQuantities.remove(cartItem)
+        userDocRef.update("cart", FieldValue.delete())
+            .addOnSuccessListener {
+                Log.d("CartViewModel", "Product successfully removed from Firestore!")
+            }
+            .addOnFailureListener { e ->
+                Log.w("CartViewModel", "Error removing product from Firestore", e)
+            }
+        calculateTotalSum()
+    }
+
+
 }
