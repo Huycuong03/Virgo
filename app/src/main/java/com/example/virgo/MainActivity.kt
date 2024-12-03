@@ -142,7 +142,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<ArticleRoute> {
                             val html: String = it.toRoute<ArticleRoute>().html
-                            ArticleScreen(html)
+                            ArticleScreen(html, navController)
                         }
                         composable<FacilityDetailRoute> {
                             val id = it.toRoute<FacilityDetailRoute>().id

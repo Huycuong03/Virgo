@@ -9,5 +9,5 @@ data class Review(
     val user: User? = null,
     val rating: Float? = null,
     val comment: String? = null,
-    val timestamp: Timestamp? = null
+    val timestamp: Long? = null
 )

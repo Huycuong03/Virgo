@@ -41,17 +41,19 @@ fun FacilityDetailScreen(id: String, navController: NavController) {
             )
         }
     ) {
-        FacilityDetail(onBooking = {
-            facility.id?.let {
-                navController.navigate(AppointmentBookingRoute(it))
-            }
-        })
+        facility.html?.let { it1 ->
+            FacilityDetail(it1, onBooking = {
+                facility.id?.let {
+                    navController.navigate(AppointmentBookingRoute(it))
+                }
+            })
+        }
     }
 }
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun FacilityDetail(onBooking: () -> Unit) {
+fun FacilityDetail(html: String, onBooking: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AndroidView(
             factory = {
@@ -65,14 +67,14 @@ fun FacilityDetail(onBooking: () -> Unit) {
                     settings.setSupportZoom(true)
                     settings.builtInZoomControls = true
                     settings.displayZoomControls = false
-                    loadUrl("file:///android_asset/facility.html")
+                    loadUrl(html)
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
             update = {
-                it.loadUrl("file:///android_asset/facility.html")
+                it.loadUrl(html)
             }
         )
         Spacer(modifier = Modifier.height(16.dp))
