@@ -20,22 +20,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.virgo.R
+import androidx.navigation.NavController
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun ArticleScreen(html: String) {
-    val url: String = stringResource(id = R.string.github_page) + "/html/" + html
+fun ArticleScreen(html: String, navController: NavController) {
+    val url: String = html
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier.height(56.dp),
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {navController.popBackStack()}) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",

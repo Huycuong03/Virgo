@@ -359,7 +359,7 @@ fun ProductReviewScreen(reviews: List<Review>) {
                 name = review.user?.name,
                 rating = review.rating,
                 comment = review.comment,
-                date = Timestamp(seconds = review.timestamp?:0, 0).toDate().toString()
+                date = Timestamp(review.timestamp?:0, 0).toDate().toString()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
