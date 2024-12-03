@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,9 +29,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.virgo.R
 import com.example.virgo.model.ecommerce.ProductWithQuantity
+import com.example.virgo.route.HomeRoute
+import com.example.virgo.route.ecommerce.CheckOutRoute
+import com.example.virgo.route.ecommerce.PrescriptionRoute
+import com.example.virgo.ui.screen.home.HomeScreen
 import com.example.virgo.ui.theme.ColorAccent
 import com.example.virgo.ui.theme.VirgoTheme
 import com.example.virgo.viewModel.CartViewModel
@@ -40,7 +46,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CartScreen() {
+fun CartScreen(navController: NavController) {
     val viewModel : CartViewModel = viewModel()
     val productsWithQuantities = viewModel.productsWithQuantities.value
     val totalSum = viewModel.totalSum.value
@@ -50,12 +56,12 @@ fun CartScreen() {
         TopAppBar(
             title = { Text(text = "Giỏ hàng", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
             navigationIcon = {
-                IconButton(onClick = { /* Handle back navigation */ }) {
+                IconButton(onClick = { navController.popBackStack() }) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                 }
             },
             actions = {
-                TextButton(onClick = { /* Handle continue shopping */ }) {
+                TextButton(onClick = { navController.navigate(HomeRoute) }) {
                     Text(text = "Tiếp tục mua sắm", color = ColorAccent, fontSize = 14.sp)
                 }
             },
@@ -79,7 +85,7 @@ fun CartScreen() {
             Text(text = "Chọn tất cả (${productsWithQuantities.size})", fontSize = 16.sp)
 
             Spacer(modifier = Modifier.weight(1f))
-            TextButton(onClick = { /* TODO: Handle change delivery method */ }) {
+            TextButton(onClick = { navController.navigate(PrescriptionRoute) }) {
                 Text(text = "Đơn thuốc", color = ColorAccent)
             }
         }
@@ -104,7 +110,9 @@ fun CartScreen() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { },
+            onClick = {
+                navController.navigate(CheckOutRoute)
+            },
             modifier = Modifier
                 .padding(horizontal = 16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = ColorAccent)
@@ -117,6 +125,7 @@ fun CartScreen() {
 @Composable
 fun ProductItem(product: ProductWithQuantity, onCheckedChange: (Boolean) -> Unit) {
     val viewModel : CartViewModel = viewModel()
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -141,6 +150,11 @@ fun ProductItem(product: ProductWithQuantity, onCheckedChange: (Boolean) -> Unit
         Column(modifier = Modifier.weight(1f)) {
             Text(text = product.product?.name.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(text = product.product?.getFormattedPrice()?:"0 đ", color = ColorAccent, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            IconButton(onClick = {
+                viewModel.removeProductFromCart(product)
+            }) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+            }
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -157,13 +171,5 @@ fun ProductItem(product: ProductWithQuantity, onCheckedChange: (Boolean) -> Unit
             }
             Text(text = product.product?.packaging?.type.toString())
         }
-    }
-}
-
-@Preview(showBackground = false)
-@Composable
-fun CartScreenPreview() {
-    VirgoTheme {
-        CartScreen()
     }
 }

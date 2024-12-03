@@ -4,12 +4,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,19 +41,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.virgo.R
 import com.example.virgo.model.ecommerce.Product
+import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.example.virgo.ui.theme.ColorAccent
 import com.example.virgo.ui.theme.VirgoTheme
+import com.example.virgo.viewModel.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderConfirmationScreen() {
+fun CheckOutScreen() {
     val products = remember {
         mutableStateListOf<Product>()
     }
-
+    val viewModel : CartViewModel = viewModel()
+    val productsWithQuantities = viewModel.productsWithQuantities.value
+    val totalSum = viewModel.totalSum.value
+    val selectAllChecked = viewModel.selectAllChecked.value
     Scaffold(
         topBar = {
             TopAppBar(
@@ -85,90 +93,107 @@ fun OrderConfirmationScreen() {
             }
         }
     ) { innerPadding ->
-        Column(
+        // Using LazyColumn for scrollable content
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(Color(0xFFF0F3F7))
                 .padding(16.dp)
         ) {
-            // Delivery Method Section
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Hình thức nhận hàng",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = { /* TODO: Handle change delivery method */ }) {
-                    Text(text = "Giao hàng tận nơi", color = ColorAccent)
-                }
-            }
-
-            // Delivery Address Section
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Giao hàng tới",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = { /* TODO: Handle change address */ }) {
-                    Text(text = "Thay đổi", color = ColorAccent)
-                }
-            }
-
-            // Add Address Button
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White, shape = RoundedCornerShape(8.dp))
-                    .padding(16.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Bạn chưa có địa chỉ nhận hàng", color = Color.Gray)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(
-                        onClick = { /* TODO: Handle add address */ },
-                        colors = ButtonDefaults.buttonColors(containerColor = ColorAccent)
-                    ) {
-                        Icon(imageVector = Icons.Filled.Add, contentDescription = null)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Thêm địa chỉ")
+            item {
+                // Delivery Method Section
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Hình thức nhận hàng",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(onClick = { /* TODO: Handle change delivery method */ }) {
+                        Text(text = "Giao hàng tận nơi", color = ColorAccent)
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextButton(onClick = { /* TODO: Handle change delivery method */ }) {
-                Text(text = "Thêm mặt hàng", color = ColorAccent)
-            }
-            // Product List Section
-            LazyColumn {
-                items(products.size) { index ->
-                    ProductItem(product = products[index])
+            item {
+                // Delivery Address Section
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Giao hàng tới",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(onClick = { /* TODO: Handle change address */ }) {
+                        Text(text = "Thay đổi", color = ColorAccent)
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            PaymentInfoScreen()
+            item {
+                // Add Address Button
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .padding(16.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "Bạn chưa có địa chỉ nhận hàng", color = Color.Gray)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = { /* TODO: Handle add address */ },
+                            colors = ButtonDefaults.buttonColors(containerColor = ColorAccent)
+                        ) {
+                            Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Thêm địa chỉ")
+                        }
+                    }
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
+                TextButton(onClick = { /* TODO: Handle change delivery method */ }) {
+                    Text(text = "Thêm mặt hàng", color = ColorAccent)
+                }
+            }
+
+            // Product List Section
+            val selectedProducts = productsWithQuantities.filter { it.selected == true }
+
+            items(selectedProducts) { product ->
+                ProductItem1(product)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
+                PaymentInfoScreen()
+            }
         }
     }
 }
 
 @Composable
-fun ProductItem(product: Product) {
+fun ProductItem1(product: ProductWithQuantity) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -177,20 +202,20 @@ fun ProductItem(product: Product) {
     ) {
 
         AsyncImage(
-            model = (stringResource(id = R.string.github_page) + "/drawable/" + (product.images[0])),
-            contentDescription = "Image Description",
-            modifier = Modifier.size(120.dp),
-            contentScale = ContentScale.Crop
+            model = stringResource(R.string.github_page)+"/drawable/"+ (product.product?.images?.get(0) ?: "image_holder.jpg"),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(60.dp)
         )
 
+
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = product.name.toString(), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = product.getFormattedPrice()+" đ", color = ColorAccent, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            }
+            Text(text = product.product?.name.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(text = product.product?.getFormattedPrice()?:"0 đ", color = ColorAccent, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         }
     }
 }
+
 @Composable
 fun PaymentInfoScreen() {
     Column(
@@ -199,22 +224,6 @@ fun PaymentInfoScreen() {
             .background(Color(0xFFF0F3F7))
             .padding(16.dp)
     ) {
-        // Reward Points Section
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Đổi 585 điểm (≈5.850đ)",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFFF5A623)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Switch(checked = false, onCheckedChange = { /* TODO: Handle switch */ })
-        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -235,41 +244,19 @@ fun PaymentInfoScreen() {
 
             // Payment Details Rows
             PaymentDetailRow("Tổng tiền", "570.000đ", isBold = true)
-            PaymentDetailRow("Giảm giá trực tiếp", "0đ", Color(0xFFFFA500))
-            PaymentDetailRow("Giảm giá voucher", "0đ", Color(0xFFFFA500))
             PaymentDetailRow("Phí vận chuyển", "Miễn phí", Color(0xFF007BFF))
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Total Amount Row
             PaymentDetailRow("Thành tiền", "570.000đ", isBold = true)
-
-            // Reward Points Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Điểm thưởng",
-                    fontSize = 14.sp
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = "+570",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFF5A623)
-                )
-            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Terms and Conditions Text
         Text(
-            text = "Bằng việc tiến hành đặt mua hàng, bạn đồng ý với Điều khoản dịch vụ và Chính sách xử lý dữ liệu cá nhân của Nhà thuốc FPT Long Châu",
+            text = "Bằng việc tiến hành đặt mua hàng, bạn đồng ý với Điều khoản dịch vụ và Chính sách xử lý dữ liệu cá nhân của Nhà thuốc Virgo",
             fontSize = 12.sp,
             color = Color.Gray,
             modifier = Modifier.padding(8.dp)
@@ -298,12 +285,5 @@ fun PaymentDetailRow(label: String, amount: String, color: Color = Color.Black, 
             fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
             color = color
         )
-    }
-}
-@Preview(showBackground = false)
-@Composable
-fun OrderCo() {
-    VirgoTheme {
-        OrderConfirmationScreen()
     }
 }

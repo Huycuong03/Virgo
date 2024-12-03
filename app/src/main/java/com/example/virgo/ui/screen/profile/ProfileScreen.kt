@@ -17,19 +17,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.virgo.R
+import com.example.virgo.route.ecommerce.CompletedOrderRoute
 import com.example.virgo.ui.screen.ecommerce.ProductDetailScreen
 import com.example.virgo.ui.theme.VirgoTheme
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFEFEFEF))
     ) {
         ProfileHeader()
-        OrderSection()
+        OrderSection(navController)
         AccountSection()
     }
 }
@@ -72,24 +74,18 @@ fun ProfileHeader() {
 }
 
 @Composable
-fun OrderSection() {
+fun OrderSection(navController: NavController) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Đơn của tôi", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Image(
-            painter = painterResource(id = R.drawable.order), // Placeholder image
-            contentDescription = "Product Image",
-            modifier = Modifier
-                .height(50.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            OrderItem(icon = Icons.Default.Star, label = "Đang xử lý")
-            OrderItem(icon = Icons.Default.Place, label = "Đang giao")
-            OrderItem(icon = Icons.Default.CheckCircle, label = "Đã giao")
-            OrderItem(icon = Icons.Default.Refresh, label = "Đổi/Trả")
+        Button(onClick = {
+            navController.navigate(CompletedOrderRoute)
+        }) {
+            Image(
+                painter = painterResource(id = R.drawable.order), // Placeholder image
+                contentDescription = "Product Image",
+                modifier = Modifier
+                    .height(50.dp)
+            )
         }
     }
 }
@@ -132,13 +128,4 @@ fun AccountItem(icon: ImageVector, label: String) {
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = label, fontSize = 14.sp)
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun sa(){
-    VirgoTheme {
-        ProfileScreen()
-    }
-
 }

@@ -27,12 +27,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.virgo.model.Order
 import com.example.virgo.ui.theme.VirgoTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConpletedOrder() {
+fun ConpletedOrder(navController: NavController) {
     var selectedTabIndex = remember { mutableStateOf(0) } // Default tab: "Đã giao"
     val tabs = listOf("Đang xử lý", "Đang giao", "Đã giao", "Đã hủy", "Trả hàng")
 
@@ -41,7 +43,7 @@ fun ConpletedOrder() {
         TopAppBar(
             title = { Text(text = "Quản lý đơn hàng") },
             navigationIcon = {
-                IconButton(onClick = { /* Handle back action */ }) {
+                IconButton(onClick = { navController.popBackStack() }) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                 }
             },
@@ -60,7 +62,7 @@ fun ConpletedOrder() {
                         Text(
                             text = title,
                             color = if (selectedTabIndex.value == index) Color.Black else Color.Gray,
-                            fontWeight = if (selectedTabIndex.value== index) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (selectedTabIndex.value== index) FontWeight.Bold else FontWeight.Medium
                         )
                     }
                 )
@@ -84,14 +86,6 @@ fun ConpletedOrder() {
         }
     }
 }
-
-
-data class Order(
-    val orderDate: String,
-    val orderId: String,
-    val productName: String,
-    val totalPrice: String
-)
 
 @Composable
 fun OrderListScreen() {
@@ -183,10 +177,3 @@ fun OrderItem(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewOrder() {
-    VirgoTheme {
-        ConpletedOrder()
-    }
-}
