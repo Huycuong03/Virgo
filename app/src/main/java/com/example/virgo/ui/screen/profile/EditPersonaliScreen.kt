@@ -1,6 +1,7 @@
 package com.example.virgo.ui.screen.profile
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,6 +35,8 @@ fun EditPersonalScreen(navController: NavController) {
     val user = viewModel.user.value
     var validationMessage by remember { mutableStateOf("") }
     val context = LocalContext.current
+    BackHandler {
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()

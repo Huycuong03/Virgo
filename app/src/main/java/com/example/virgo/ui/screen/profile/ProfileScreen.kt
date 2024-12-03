@@ -1,5 +1,6 @@
 package com.example.virgo.ui.screen.profile
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,6 +36,8 @@ import com.example.virgo.viewModel.profile.ProfileViewModel
 fun ProfileScreen(navController: NavController) {
     val viewModel: ProfileViewModel = viewModel()
     val user = viewModel.user.value
+    BackHandler {
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()

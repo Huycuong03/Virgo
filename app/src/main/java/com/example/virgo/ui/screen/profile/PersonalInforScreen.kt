@@ -1,5 +1,7 @@
 package com.example.virgo.ui.screen.profile
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,6 +31,8 @@ import com.example.virgo.viewModel.profile.ProfileViewModel
 fun PersonalInforScreen(navController: NavController) {
     val viewModel : ProfileViewModel = viewModel()
     val user = viewModel.user.value
+    BackHandler {
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,7 +83,7 @@ fun PersonalInforScreen(navController: NavController) {
                     }
                 }
             }
-        } }
+        }}
     }
 }
 
@@ -98,7 +103,7 @@ fun ProfileContent(name: String, phoneNumber: String, email: String, gender: Boo
                 .size(100.dp)
         ) {
             AsyncImage(
-                model = (stringResource(id = R.string.github_page) + "/drawable/" + (image?:"image_holder.jpg")),
+                model = (stringResource(id = R.string.github_page) + "/drawable/" + image),
                 contentDescription = "Image Description",
                 modifier = Modifier.size(80.dp),
                 contentScale = ContentScale.Crop
