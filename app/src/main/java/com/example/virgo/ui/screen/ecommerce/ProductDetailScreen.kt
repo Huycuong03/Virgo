@@ -38,6 +38,7 @@ import com.example.virgo.ui.theme.ColorWarning
 import com.example.virgo.ui.theme.VirgoTheme
 import com.example.virgo.viewModel.CartViewModel
 import com.example.virgo.viewModel.ProductDetailViewModel
+import com.google.firebase.Timestamp
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -365,7 +366,7 @@ fun ProductReviewScreen(reviews: List<Review>) {
                 name = review.user?.name,
                 rating = review.rating,
                 comment = review.comment,
-                date = review.timestamp?.toDate().toString()
+                date = Timestamp(review.timestamp?:0,0).toDate().toString()
             )
 
             Spacer(modifier = Modifier.height(16.dp))

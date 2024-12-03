@@ -16,11 +16,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.example.virgo.sqlite.ReminderDatabaseHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderHome(context: Context) {
+fun ReminderListScreen(context: Context, navController: NavController) {
     val dbHelper = ReminderDatabaseHelper(context)
     val db = dbHelper.readableDatabase
 
@@ -40,7 +41,7 @@ fun ReminderHome(context: Context) {
             CenterAlignedTopAppBar(
                 title = { Text("Reminder") },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle back navigation */ }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },

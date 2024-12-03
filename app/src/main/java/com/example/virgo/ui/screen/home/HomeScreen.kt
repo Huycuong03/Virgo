@@ -44,6 +44,7 @@ import com.example.virgo.model.ecommerce.Product
 import com.example.virgo.model.lib.Article
 import com.example.virgo.route.ArticleRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
+import com.example.virgo.route.reminder.ReminderListRoute
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.screen.ecommerce.ProductCard
 import com.example.virgo.ui.screen.lib.Gallery
@@ -126,7 +127,9 @@ fun HomeScreen(navController: NavController) {
                     color = Color.Blue,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier
-                        .clickable {}
+                        .clickable {
+                            navController.navigate(ReminderListRoute)
+                        }
                         .align(Alignment.CenterHorizontally)
                 )
             }
