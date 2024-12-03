@@ -1,46 +1,42 @@
 package com.example.virgo.ui.screen.ecommerce
 
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.virgo.R
 import com.example.virgo.model.ecommerce.ProductWithQuantity
+import com.example.virgo.route.HomeRoute
+import com.example.virgo.route.ecommerce.CheckOutRoute
+import com.example.virgo.route.ecommerce.PrescriptionRoute
 import com.example.virgo.ui.theme.ColorAccent
-import com.example.virgo.ui.theme.VirgoTheme
-import com.example.virgo.viewModel.CartViewModel
+import com.example.virgo.viewModel.ecommerce.CartViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CartScreen() {
+fun CartScreen(navController: NavController) {
     val viewModel : CartViewModel = viewModel()
     val productsWithQuantities = viewModel.productsWithQuantities.value
     val totalSum = viewModel.totalSum.value
@@ -50,12 +46,12 @@ fun CartScreen() {
         TopAppBar(
             title = { Text(text = "Giỏ hàng", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
             navigationIcon = {
-                IconButton(onClick = { /* Handle back navigation */ }) {
+                IconButton(onClick = { navController.popBackStack() }) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                 }
             },
             actions = {
-                TextButton(onClick = { /* Handle continue shopping */ }) {
+                TextButton(onClick = { navController.navigate(HomeRoute) }) {
                     Text(text = "Tiếp tục mua sắm", color = ColorAccent, fontSize = 14.sp)
                 }
             },
@@ -79,7 +75,7 @@ fun CartScreen() {
             Text(text = "Chọn tất cả (${productsWithQuantities.size})", fontSize = 16.sp)
 
             Spacer(modifier = Modifier.weight(1f))
-            TextButton(onClick = { /* TODO: Handle change delivery method */ }) {
+            TextButton(onClick = { navController.navigate(PrescriptionRoute) }) {
                 Text(text = "Đơn thuốc", color = ColorAccent)
             }
         }
@@ -88,8 +84,12 @@ fun CartScreen() {
 
         LazyColumn {
             items(productsWithQuantities){product ->
-                ProductItem(product) {
-                    viewModel.toggleSelectOne(product)
+                ProductItem(
+                    product = product,
+                    onCheck = {viewModel.toggleSelectOne(product)},
+                    onRemove = {viewModel.removeProductFromCart(product)}
+                ) {
+                    viewModel.updateQuantity(product, it)
                 }
             }
         }
@@ -104,7 +104,14 @@ fun CartScreen() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { },
+            onClick = {
+                val selectedCartItemIds = viewModel.getSelectedCartItemIds()
+                if (selectedCartItemIds.isNotEmpty()) {
+                    navController.navigate(CheckOutRoute(selectedCartItemIds))
+                } else {
+                    Toast.makeText(navController.context.applicationContext, "Please select at least one item", Toast.LENGTH_SHORT).show()
+                }
+            },
             modifier = Modifier
                 .padding(horizontal = 16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = ColorAccent)
@@ -115,8 +122,13 @@ fun CartScreen() {
 }
 
 @Composable
-fun ProductItem(product: ProductWithQuantity, onCheckedChange: (Boolean) -> Unit) {
-    val viewModel : CartViewModel = viewModel()
+fun ProductItem(
+    product: ProductWithQuantity,
+    onCheck: () -> Unit,
+    onRemove: () -> Unit,
+    onUpdateQuantity: (Boolean) -> Unit
+) {
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -126,7 +138,7 @@ fun ProductItem(product: ProductWithQuantity, onCheckedChange: (Boolean) -> Unit
         Checkbox(
             checked = product.selected?:false,
             onCheckedChange = { checked ->
-                onCheckedChange(checked)
+                onCheck()
             }
         )
 
@@ -141,29 +153,26 @@ fun ProductItem(product: ProductWithQuantity, onCheckedChange: (Boolean) -> Unit
         Column(modifier = Modifier.weight(1f)) {
             Text(text = product.product?.name.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(text = product.product?.getFormattedPrice()?:"0 đ", color = ColorAccent, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            IconButton(onClick = {
+                onRemove()
+            }) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+            }
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = {
-                viewModel.decreaseQuantity(product.product?.id ?: "")
+               onUpdateQuantity(false)
             }) {
                 Text("-", fontSize = 30.sp)
             }
             Text(text = "${product.quantity}")
             IconButton(onClick = {
-                viewModel.increaseQuantity(product.product?.id ?: "")
+                onUpdateQuantity(true)
             }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Increase")
             }
             Text(text = product.product?.packaging?.type.toString())
         }
-    }
-}
-
-@Preview(showBackground = false)
-@Composable
-fun CartScreenPreview() {
-    VirgoTheme {
-        CartScreen()
     }
 }

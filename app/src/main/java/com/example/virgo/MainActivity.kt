@@ -1,23 +1,10 @@
 package com.example.virgo
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -27,11 +14,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.virgo.model.ecommerce.OrderStatus
 import com.example.virgo.model.lib.NavItem
 import com.example.virgo.repository.SharedPreferencesManager
 import com.example.virgo.route.ArticleRoute
@@ -47,7 +36,11 @@ import com.example.virgo.route.appointment.AppointmentHistoryRoute
 import com.example.virgo.route.appointment.FacilityDetailRoute
 import com.example.virgo.route.appointment.SearchFacilityRoute
 import com.example.virgo.route.ecommerce.CartRoute
+import com.example.virgo.route.ecommerce.CheckOutRoute
+import com.example.virgo.route.profile.OrderTrackingRoute
+import com.example.virgo.route.ecommerce.PrescriptionRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
+import com.example.virgo.route.profile.ProfileRoute
 import com.example.virgo.route.search.SearchRoute
 import com.example.virgo.ui.screen.appointment.AppointmentBookingScreen
 import com.example.virgo.ui.screen.appointment.FacilityDetailScreen
@@ -56,12 +49,16 @@ import com.example.virgo.ui.screen.article.ArticleScreen
 import com.example.virgo.ui.screen.auth.LoginScreen
 import com.example.virgo.ui.screen.auth.SignUpScreen
 import com.example.virgo.ui.screen.ecommerce.CartScreen
+import com.example.virgo.ui.screen.ecommerce.CheckOutScreen
+import com.example.virgo.ui.screen.ecommerce.UploadPrescriptionScreen
 import com.example.virgo.ui.screen.profile.AppointmentHistoryScreen
+import com.example.virgo.ui.screen.profile.ProfileScreen
 import com.example.virgo.ui.screen.telemedicine.TelemedicineScreen
+import com.example.virgo.ui.screen.profile.OrderTrackingScreen
 import com.example.virgo.ui.theme.VirgoTheme
+import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -156,7 +153,25 @@ class MainActivity : ComponentActivity() {
                             AppointmentHistoryScreen(navController)
                         }
                         composable<CartRoute> {
-                            CartScreen()
+                            CartScreen(navController)
+                        }
+                        composable<ProfileRoute> {
+                            ProfileScreen(navController)
+                        }
+                        composable<PrescriptionRoute> {
+                            UploadPrescriptionScreen()
+                        }
+                        composable<CheckOutRoute> {
+                            val cartItemIdList = it.toRoute<CheckOutRoute>().cartItemIdList
+                            CheckOutScreen(cartItemIdList, navController)
+                        }
+                        composable<OrderTrackingRoute> (
+                            typeMap = mapOf(
+                                typeOf<OrderStatus>() to NavType.EnumType(OrderStatus::class.java)
+                            )
+                        ) {
+                            val status = it.toRoute<OrderTrackingRoute>().status
+                            OrderTrackingScreen(status, navController)
                         }
                     }
                 }

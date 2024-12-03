@@ -13,28 +13,25 @@ class HomeViewModel : ViewModel() {
     private val _articleList = mutableStateListOf<Article>()
     private val _productList = mutableStateListOf<Product>()
 
-    val articleList: State<List<Article>>
-        get() = derivedStateOf {
+    val articleList: State<List<Article>> get() = derivedStateOf {
         _articleList.toList()
     }
-    val productList : State<List<Product>>
-        get() = derivedStateOf {
-            _productList.toList()
-        }
+    val productList : State<List<Product>> get() = derivedStateOf {
+        _productList.toList()
+    }
 
-    fun fetchArticle_And_Product() {
-        _articleList.clear()
-        _productList.clear()
-        FirebaseFirestore.getInstance().collection("articles").get().addOnSuccessListener { documents ->
+    init {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("articles").limit(5).get().addOnSuccessListener { documents ->
             for (doc in documents) {
                 val article = doc.toObject<Article>()
                 _articleList.add(article)
             }
         }
 
-        FirebaseFirestore.getInstance().collection("products").get().addOnSuccessListener { documents ->
+        db.collection("products").limit(10).get().addOnSuccessListener { documents ->
             for (doc in documents) {
-                val product = doc.toObject<Product>()
+                val product = doc.toObject<Product>().copy(id = doc.id)
                 _productList.add(product)
             }
         }

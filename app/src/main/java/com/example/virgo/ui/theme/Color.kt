@@ -37,3 +37,4 @@ val ColorDisabled = Color(0xFFB4B6B7)  // Disabled states (buttons, icons, etc.)
 // Border & Divider Colors
 val ColorDivider = Color(0xFFE0E0E0)  // Light gray for dividers and borders
 val ColorBorder = Color(0xFFBDBDBD)  // Slightly darker gray for active borders
+val ColorRating = Color(0xFFFFC107)

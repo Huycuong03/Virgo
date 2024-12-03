@@ -16,6 +16,7 @@ import com.example.virgo.route.HomeRoute
 import com.example.virgo.route.TelemedicineRoute
 import com.example.virgo.route.appointment.SearchFacilityRoute
 import com.example.virgo.route.ecommerce.CartRoute
+import com.example.virgo.route.profile.ProfileRoute
 
 enum class NavItem (
     val route: Any,
@@ -44,7 +45,7 @@ enum class NavItem (
         unselectedIcon = Icons.Outlined.ShoppingCart
     ),
     PROFILE(
-        route = "Profile",
+        route = ProfileRoute,
         selectedIcon = Icons.Filled.Person,
         unselectedIcon = Icons.Outlined.Person
     )

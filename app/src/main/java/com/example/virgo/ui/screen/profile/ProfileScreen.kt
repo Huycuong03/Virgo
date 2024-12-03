@@ -1,8 +1,9 @@
 package com.example.virgo.ui.screen.profile
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,30 +13,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.virgo.R
-import com.example.virgo.ui.screen.ecommerce.ProductDetailScreen
-import com.example.virgo.ui.theme.VirgoTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.virgo.model.User
+import com.example.virgo.model.ecommerce.OrderStatus
+import com.example.virgo.route.profile.OrderTrackingRoute
+import com.example.virgo.viewModel.profile.ProfileViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController) {
+    val viewModel: ProfileViewModel = viewModel()
+    val user = viewModel.user.value
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFEFEFEF))
     ) {
-        ProfileHeader()
-        OrderSection()
+        ProfileHeader(user)
+        OrderSection() {
+            navController.navigate(OrderTrackingRoute(status = it))
+        }
         AccountSection()
     }
 }
 
 @Composable
-fun ProfileHeader() {
+fun ProfileHeader(user: User) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,53 +59,24 @@ fun ProfileHeader() {
             tint = Color.Gray
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Anh Tuấn", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text(text = "0359 594 531", color = Color.White, fontSize = 14.sp)
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(text = "585", color = Color.White, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.width(4.dp))
-            Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = "Coins",
-                tint = Color.Yellow
-            )
-        }
+        Text(text = user.name.toString(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(text = user.phoneNumber.toString(), color = Color.White, fontSize = 14.sp)
     }
 }
 
 @Composable
-fun OrderSection() {
+fun OrderSection(onClick: (OrderStatus) -> Unit) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Đơn của tôi", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Image(
-            painter = painterResource(id = R.drawable.order), // Placeholder image
-            contentDescription = "Product Image",
-            modifier = Modifier
-                .height(50.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
+        LazyRow (
             modifier = Modifier.fillMaxWidth()
         ) {
-            OrderItem(icon = Icons.Default.Star, label = "Đang xử lý")
-            OrderItem(icon = Icons.Default.Place, label = "Đang giao")
-            OrderItem(icon = Icons.Default.CheckCircle, label = "Đã giao")
-            OrderItem(icon = Icons.Default.Refresh, label = "Đổi/Trả")
+            items(OrderStatus.entries.toList()) {
+                TextButton(onClick = { onClick(it) }) {
+                    Text(text = it.text)
+                }
+            }
         }
-    }
-}
-
-@Composable
-fun OrderItem(icon: ImageVector, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(imageVector = icon, contentDescription = label, modifier = Modifier.size(40.dp))
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = label, fontSize = 12.sp)
     }
 }
 
@@ -132,13 +109,4 @@ fun AccountItem(icon: ImageVector, label: String) {
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = label, fontSize = 14.sp)
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun sa(){
-    VirgoTheme {
-        ProfileScreen()
-    }
-
 }
