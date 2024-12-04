@@ -195,6 +195,7 @@ fun AppointmentBookingScreen(facilityId: String, navController: NavController) {
                     onClick = {
                         viewModel.createAppointment(
                             onSuccess = {
+                                navController.popBackStack()
                                 navController.navigate(AppointmentHistoryRoute)
                             },
                             onFailure = {

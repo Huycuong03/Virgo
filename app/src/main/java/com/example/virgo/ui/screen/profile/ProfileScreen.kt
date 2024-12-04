@@ -28,6 +28,8 @@ import com.example.virgo.R
 import com.example.virgo.model.User
 import com.example.virgo.model.ecommerce.OrderStatus
 import com.example.virgo.route.appointment.AppointmentHistoryRoute
+import com.example.virgo.route.ecommerce.PrescriptionRoute
+import com.example.virgo.route.profile.ManageAddressRoute
 import com.example.virgo.route.profile.OrderTrackingRoute
 import com.example.virgo.route.profile.PersonalInformationRoute
 import com.example.virgo.viewModel.profile.ProfileViewModel
@@ -96,9 +98,9 @@ fun AccountSection(navController: NavController) {
         Text(text = "Tài khoản", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Spacer(modifier = Modifier.height(8.dp))
         AccountItem(icon = Icons.Default.Person, label = "Thông tin cá nhân", onClick = {navController.navigate(PersonalInformationRoute)})
-        AccountItem(icon = Icons.Default.LocationOn, label = "Quản lý sổ địa chỉ", onClick = {})
+        AccountItem(icon = Icons.Default.LocationOn, label = "Quản lý sổ địa chỉ", onClick = {navController.navigate(ManageAddressRoute)})
         AccountItem(icon = Icons.Default.DateRange, label = "Lịch sử đặt hẹn", onClick = {navController.navigate(AppointmentHistoryRoute)})
-        AccountItem(icon = Icons.Default.Favorite, label = "Đơn thuốc của tôi", onClick = {})
+        AccountItem(icon = Icons.Default.Favorite, label = "Đơn thuốc của tôi", onClick = {navController.navigate(PrescriptionRoute)})
     }
 }
 
