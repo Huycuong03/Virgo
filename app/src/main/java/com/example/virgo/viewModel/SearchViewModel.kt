@@ -53,7 +53,6 @@ class SearchViewModel : ViewModel() {
                 snapshot.children.forEach {
                     _recentSearches.add(it.getValue<String>().toString())
                 }
-                Log.d("searchList", _recentSearches.joinToString())
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -73,7 +72,7 @@ class SearchViewModel : ViewModel() {
 
         db.collection("products").get().addOnSuccessListener { documents ->
             for (doc in documents) {
-                val product = doc.toObject<Product>()
+                val product = doc.toObject<Product>().copy(id = doc.id)
                 _productList.add(product)
             }
         }

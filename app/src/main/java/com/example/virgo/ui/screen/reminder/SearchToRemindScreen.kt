@@ -1,5 +1,6 @@
 package com.example.virgo.ui.screen.reminder
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -103,6 +104,8 @@ fun SearchToReminderScreen(navController: NavController) {
 
                     Button(
                         onClick = {
+
+                            Log.d("Size", addedProductID.size.toString())
                             navController.navigate(AddFormRoute(addedProductID))
                         },
                         modifier = Modifier.fillMaxWidth()

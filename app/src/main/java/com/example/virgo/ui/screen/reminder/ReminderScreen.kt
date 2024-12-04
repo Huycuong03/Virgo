@@ -2,6 +2,7 @@ package com.example.virgo.ui.screen.reminder
 
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,28 +15,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.virgo.model.lib.Reminder
 import com.example.virgo.route.reminder.SearchToReminderRoute
 import com.example.virgo.sqlite.ReminderDatabaseHelper
+import com.example.virgo.viewModel.reminder.ReminderHomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderListScreen(context: Context, navController: NavController) {
-    val dbHelper = ReminderDatabaseHelper(context)
+fun ReminderListScreen(navController: NavController) {
+    val dbHelper = ReminderDatabaseHelper(navController.context)
     val db = dbHelper.readableDatabase
+    val viewModel: ReminderHomeViewModel = viewModel()
 
-    val activeReminders = remember { mutableStateListOf<String>() }
-    val inactiveReminders = remember { mutableStateListOf<String>() }
+    val activeReminders = viewModel.activeReminders.value
+    val inactiveReminders = viewModel.inactiveReminders.value
+
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedReminder by remember { mutableStateOf<Reminder?>(null) }
+    var showActive by remember { mutableStateOf(true) }
+
 
     LaunchedEffect(Unit) {
-        activeReminders.clear()
-        inactiveReminders.clear()
-        activeReminders.addAll(dbHelper.getActiveReminders(db)) // Get active reminders
-        inactiveReminders.addAll(dbHelper.getInactiveReminders(db)) // Get inactive reminders
+        viewModel.loadReminders()
     }
-    var showActive by remember { mutableStateOf(true) }
 
     Scaffold(
         topBar = {
@@ -48,26 +55,13 @@ fun ReminderListScreen(context: Context, navController: NavController) {
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFFADD8E6)
-                )
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
-                containerColor = Color(0xFFADD8E6)
-            ) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(onClick = { /* Navigate to Reminder Home Page */ }) {
-                        Text("Reminder Home")
-                    }
-                    Button(onClick = { navController.navigate(SearchToReminderRoute)}) {
-                        Text("Add Reminder")
+                ),
+                actions = {
+                    IconButton(onClick = { navController.navigate(SearchToReminderRoute) }) {
+                        Icon(imageVector = Icons.Filled.Add, contentDescription = null)
                     }
                 }
-            }
+            )
         }
     ) { padding ->
         Column(
@@ -102,8 +96,12 @@ fun ReminderListScreen(context: Context, navController: NavController) {
                                 .padding(4.dp)
                                 .background(Color.LightGray)
                                 .padding(16.dp)
+                                .clickable {
+                                    selectedReminder = reminder
+                                    showDialog = true
+                                }
                         ) {
-                            Text(text = reminder)
+                            Text(text = reminder.name)
                         }
                     }
                 }
@@ -117,14 +115,45 @@ fun ReminderListScreen(context: Context, navController: NavController) {
                                 .padding(4.dp)
                                 .background(Color.LightGray)
                                 .padding(16.dp)
+                                .clickable {
+                                    selectedReminder = reminder
+                                    showDialog = true
+                                }
                         ) {
-                            Text(text = reminder)
+                            Text(text = reminder.name)
                         }
                     }
                 }
             }
         }
     }
+    if (showDialog && selectedReminder != null) {
+        ReminderDialog(reminder = selectedReminder!!) {
+            // Handle dismissing the dialog, you can close the dialog here
+            showDialog = false
+        }
+    }
+}
+
+@Composable
+fun ReminderDialog(reminder: Reminder, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Reminder Details") },
+        text = {
+            Column {
+                Text("Name: ${reminder.name}")
+                Text("Date Started: ${reminder.dateCreated} ")
+                Text("Duration: ${reminder.duration} days")
+                Text("Skip: ${reminder.skip} days")
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }
 
 

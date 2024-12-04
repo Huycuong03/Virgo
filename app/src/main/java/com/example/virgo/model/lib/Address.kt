@@ -1,7 +1,9 @@
 package com.example.virgo.model.lib
 
 import com.google.firebase.database.IgnoreExtraProperties
+import kotlinx.serialization.Serializable
 
+@Serializable
 @IgnoreExtraProperties
 data class Address(
     val city: String? = null,

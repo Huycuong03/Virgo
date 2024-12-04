@@ -1,11 +1,14 @@
 package com.example.virgo.ui.screen.reminder
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,11 +20,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
+import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.virgo.model.ecommerce.Product
 import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.example.virgo.route.reminder.ReminderListRoute
+import com.example.virgo.route.reminder.ReminderTimeRoute
+import com.example.virgo.ui.screen.lib.TopBar
 import com.example.virgo.viewModel.reminder.AddReminderViewModel
+import com.google.firebase.Timestamp
 import java.time.LocalDate
 
 @Composable
@@ -29,47 +37,39 @@ fun AddFormScreen(
     productIDs: List<String>,
     navController: NavController
 ) {
-    var showDosageDialog by remember { mutableStateOf(false) }
-    var showScheduleDialog by remember { mutableStateOf(false) }
-    var selectedReminder by remember { mutableStateOf<ProductWithQuantity?>(null) }
-
-
-    // Dismiss dialog handlers
-    val onDismissDosageDialog = { showDosageDialog = false }
-    val onDismissScheduleDialog = { showScheduleDialog = false }
-
-    val viewModel = AddReminderViewModel()
-
+    val viewModel: AddReminderViewModel = viewModel()
     val name = viewModel.name.value
-    val dateCreated = viewModel.dateCreated.value
     val duration = viewModel.duration.value
     val skip = viewModel.skip.value
-    val alarms = viewModel.alarms.value
     val reminders = viewModel.products.value
 
-    // Save handlers
-    val onSaveDosage = {
-        // Save dosage logic
-        showDosageDialog = false
+    LaunchedEffect(key1 = productIDs) {
+        viewModel.fetchProducts(productIDs)
     }
 
-    val onSaveSchedule = {
-        // Save schedule logic
-        showScheduleDialog = false
-    }
-
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        TopBar(
+            leadingIcon = { 
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
+                }
+            }, 
+            title = { Text(text = "Phiếu tạo nhắc nhở") }
+        )
         TextField(
             value = name,
             onValueChange = {viewModel.onChangeName(it)},
             label = { Text("Tên đơn thuốc") },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = false
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         TextField(
-            value = dateCreated,
+            value = Timestamp.now().toDate().toString(),
             onValueChange = {},
             label = { Text("Ngày bắt đầu") },
             modifier = Modifier.fillMaxWidth(),
@@ -83,13 +83,29 @@ fun AddFormScreen(
         ) {
             TextField(
                 value = if (duration == 0) "" else duration.toString(),
-                onValueChange = {viewModel.onChangeDuration(it.toInt())},
+                onValueChange = {
+                    // Safely handle non-digit inputs
+                    val newValue = it.toIntOrNull() // Converts to Int or returns null if input is invalid
+                    if (newValue != null) {
+                        viewModel.onChangeDuration(newValue) // Update with valid integer
+                    } else {
+                        viewModel.onChangeDuration(0) // Default to 0 for invalid input
+                    }
+                },
                 label = { Text("Số ngày uống") },
                 modifier = Modifier.weight(1f)
             )
             TextField(
                 value = if (skip == 0) "" else skip.toString(),
-                onValueChange = {viewModel.onChangeSkip(it.toInt())},
+                onValueChange = {
+                    // Safely handle non-digit inputs
+                    val newValue = it.toIntOrNull() // Converts to Int or returns null if input is invalid
+                    if (newValue != null) {
+                        viewModel.onChangeSkip(newValue) // Update with valid integer
+                    } else {
+                        viewModel.onChangeSkip(0) // Default to 0 for invalid input
+                    }
+                },
                 label = { Text("Số ngày nghỉ") },
                 modifier = Modifier.weight(1f)
             )
@@ -102,14 +118,10 @@ fun AddFormScreen(
             items(reminders) { reminder ->
                 ReminderRow(
                     reminder = reminder,
-                    onDelete = {
-                        viewModel.deleteProduct(reminder)
-                    },
-                    onDosageClick = {
-                        selectedReminder = reminder
-                        showDosageDialog = true
-                    }
-                )
+                    onDelete = { viewModel.deleteProduct(reminder) }
+                ) {
+                    viewModel.onChangeQuantity(it)
+                }
             }
         }
 
@@ -118,50 +130,23 @@ fun AddFormScreen(
         // Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = {navController.popBackStack()}, modifier = Modifier.weight(1f)) {
-                Text("Thêm thuốc", fontSize = 12.sp)
-            }
-            Button(onClick = { showScheduleDialog = true }, modifier = Modifier.weight(1f)) {
-                Text("Hẹn giờ", fontSize = 12.sp)
-            }
             Button(
                 onClick = {
-                    viewModel.addReminder()
-                    navController.navigate(ReminderListRoute)
+                    navController.navigate(ReminderTimeRoute(reminder = viewModel.getReminder()))
                 }
-                ,modifier = Modifier.weight(1f)) {
+            ) {
                 Text("Tiếp tục", fontSize = 12.sp)
             }
         }
     }
 
-    // Dialogs
-    if (showDosageDialog && selectedReminder != null) {
-        DosageDialog(
-            reminder = selectedReminder,
-            onDismiss = onDismissDosageDialog,
-            onSaveDosage = {
-                viewModel.onChangeQuantity(selectedReminder!!.copy(quantity = it))
-            }
-        )
-    }
-
-    if (showScheduleDialog) {
-        ScheduleDialog(
-            onDismiss = onDismissScheduleDialog,
-            onSaveSchedule = {
-                viewModel.onChangeAlarm(it)
-            }
-        )
-    }
 }
 
 
-// Reminder Row with Delete button and Thêm liều lượng button
 @Composable
-fun ReminderRow(reminder: ProductWithQuantity, onDelete: (ProductWithQuantity) -> Unit, onDosageClick: () -> Unit) {
+fun ReminderRow(reminder: ProductWithQuantity, onDelete: (ProductWithQuantity) -> Unit, onUpdate: (ProductWithQuantity) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -171,7 +156,6 @@ fun ReminderRow(reminder: ProductWithQuantity, onDelete: (ProductWithQuantity) -
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Row for name and description with delete button on the right
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -202,50 +186,25 @@ fun ReminderRow(reminder: ProductWithQuantity, onDelete: (ProductWithQuantity) -
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Thêm liều lượng button at the bottom
-            Button(
-                onClick = onDosageClick,
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Thêm liều lượng")
+                IconButton(onClick = {
+                    if ((reminder.quantity ?: 0) != 0) {
+                        onUpdate(reminder.copy(quantity = reminder.quantity ?.let { it - 1 }))
+                    }
+                }) {
+                    Text("-", fontSize = 30.sp)
+                }
+                Text(text = "${reminder.quantity}")
+                IconButton(onClick = {
+                    onUpdate(reminder.copy(quantity = reminder.quantity ?.let { it + 1 }))
+                }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Increase")
+                }
             }
         }
     }
-}
-
-@Composable
-fun DosageDialog(
-    reminder: ProductWithQuantity?,
-    onDismiss: () -> Unit,
-    onSaveDosage: (Int) -> Unit
-) {
-    var dosageAmount by remember { mutableStateOf(0) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = { onSaveDosage(dosageAmount) }) {
-                Text("Xong")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("Hủy")
-            }
-        },
-        title = { Text("Thêm liều lượng") },
-        text = {
-            Column {
-                Text("Tên sản phẩm: ${reminder?.product?.name ?: ""}")
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    value = dosageAmount.toString(),
-                    onValueChange = { dosageAmount = it.toInt() },
-                    label = { Text("Liều lượng") }
-                )
-            }
-        }
-    )
 }
 
 @Composable
