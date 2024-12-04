@@ -1,14 +1,11 @@
-package com.example.virgo.viewModel.profile
+package com.example.virgo.viewModel.profileTest
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.virgo.model.User
-import com.example.virgo.model.lib.Message
 import com.example.virgo.repository.SharedPreferencesManager
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage

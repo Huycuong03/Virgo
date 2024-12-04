@@ -1,4 +1,4 @@
-package com.example.virgo.viewModel.profile
+package com.example.virgo.viewModel.profileTest
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf

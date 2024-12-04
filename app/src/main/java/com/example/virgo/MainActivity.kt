@@ -1,12 +1,5 @@
 package com.example.virgo
 
-import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -97,21 +90,6 @@ class MainActivity : ComponentActivity() {
         SharedPreferencesManager.init(applicationContext)
         val navItems = NavItem.entries.toList()
         val uid = SharedPreferencesManager.getString("uid")
-
-        fun createNotificationChannel(context: Context) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(
-                    "alarm_channel",
-                    "Alarm Notifications",
-                    NotificationManager.IMPORTANCE_HIGH
-                ).apply {
-                    description = "Channel for alarm notifications"
-                }
-
-                val notificationManager = context.getSystemService(NotificationManager::class.java)
-                notificationManager?.createNotificationChannel(channel)
-            }
-        }
 
         fun shouldShowNavBar (routeFull: String?): Boolean {
             if (routeFull.isNullOrEmpty()) {

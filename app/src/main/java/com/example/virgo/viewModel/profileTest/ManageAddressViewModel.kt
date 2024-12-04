@@ -1,4 +1,4 @@
-package com.example.virgo.viewModel.profile
+package com.example.virgo.viewModel.profileTest
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -6,10 +6,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.virgo.model.User
-import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.example.virgo.model.lib.Address
 import com.example.virgo.repository.SharedPreferencesManager
-import com.google.firebase.database.getValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 

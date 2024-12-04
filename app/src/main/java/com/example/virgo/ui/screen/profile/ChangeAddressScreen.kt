@@ -1,6 +1,5 @@
 package com.example.virgo.ui.screen.profile
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,9 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.virgo.route.profile.ChangeAddressRoute
-import com.example.virgo.route.profile.ManageAddressRoute
-import com.example.virgo.viewModel.profile.ChangeAddressViewModel
+import com.example.virgo.viewModel.profileTest.ChangeAddressViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

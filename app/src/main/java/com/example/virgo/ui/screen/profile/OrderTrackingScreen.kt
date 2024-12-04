@@ -28,7 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.virgo.model.ecommerce.Order
 import com.example.virgo.model.ecommerce.OrderStatus
-import com.example.virgo.viewModel.profile.OrderTrackingViewModel
+import com.example.virgo.viewModel.profileTest.OrderTrackingViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)

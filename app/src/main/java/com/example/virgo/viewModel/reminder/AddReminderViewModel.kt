@@ -46,7 +46,7 @@ class AddReminderViewModel() : ViewModel() {
             for (doc in documents) {
                 val product = doc.toObject<Product>().copy(id = doc.id)
                 if(product.id in ids){
-                    val productWithQuantity = ProductWithQuantity(product, 1, false)
+                    val productWithQuantity = ProductWithQuantity(product = product, quantity = 1, selected = false)
                     _products.add(productWithQuantity)
                 }
             }
