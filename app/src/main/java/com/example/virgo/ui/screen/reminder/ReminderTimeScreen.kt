@@ -40,7 +40,6 @@ import com.example.virgo.model.lib.Alarm
 import com.example.virgo.model.lib.Reminder
 import com.example.virgo.route.HomeRoute
 import com.example.virgo.route.reminder.ReminderListRoute
-import com.example.virgo.setAlarm
 import com.example.virgo.viewModel.reminder.ReminderTimeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,7 +51,6 @@ fun ReminderTimeScreen(rmd: Reminder, navController: NavController) {
     val viewModel: ReminderTimeViewModel = viewModel()
     val alarms = viewModel.alarms.value
     val reminder = viewModel.reminder.value
-    val context = LocalContext.current
 
 
     LaunchedEffect(key1 = rmd) {
@@ -118,7 +116,8 @@ fun ReminderTimeScreen(rmd: Reminder, navController: NavController) {
                         alarm = alarm,
                         onDelete = {
                             viewModel.removeAlarm(alarm)
-                        }
+                        },
+                        onChangeTime = {viewModel.onUpdateAlarm(alarm, it)}
                     )
                 }
 
@@ -179,13 +178,8 @@ fun ReminderTimeScreen(rmd: Reminder, navController: NavController) {
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
-                onClick = {viewModel.onSave(){
-                    alarms.forEach { alarm ->
-                        Log.d("ReminderTimeScreen", "Setting alarm: $alarm")
-                        setAlarm(context, alarm)
-                    }
+                onClick = {viewModel.onSave(navController.context.applicationContext){
                     navController.navigate(ReminderListRoute)
-                    Log.d("ReminderTimeScreen", "Navigation to ReminderListRoute completed")
                 }
                           },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
@@ -212,7 +206,8 @@ fun ReminderTimeScreen(rmd: Reminder, navController: NavController) {
 fun TimePickerRow(
     label: String,
     alarm: Alarm,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onChangeTime: (Alarm) -> Unit
 ) {
     var hour by remember {
         mutableIntStateOf(alarm.hour)
@@ -224,23 +219,11 @@ fun TimePickerRow(
         mutableStateOf(false)
     }
 
-    fun validateHour(hour: String): Boolean {
-        if (!hour.isDigitsOnly()) return false
-        if (hour.toInt() < 0 || hour.toInt() > 23) return false
-        return true
-    }
-
-    fun validateMin(min: String): Boolean {
-        if (!min.isDigitsOnly()) return false
-        if (min.toInt() < 0 || min.toInt() > 59) return false
-        return true
-    }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .clickable { enabled = !enabled },
+            .clickable { enabled = !enabled},
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -250,9 +233,25 @@ fun TimePickerRow(
             fontWeight = FontWeight.Bold
         )
         Row {
-            TextField(modifier = Modifier.width(70.dp), value = String.format("%02d", hour), onValueChange = { if (validateHour(it)) hour = it.toInt() }, enabled = enabled )
+            TextField(modifier = Modifier.width(70.dp), value = if(hour != -1) hour.toString() else "",
+                onValueChange = {
+                    val newValue = it.toIntOrNull()
+                    if (newValue != null) {
+                        hour = it.toInt()
+                        onChangeTime(alarm.copy(hour = it.toInt()))
+                    } else {
+                        hour = -1
+                    } },
+                enabled = enabled )
             Text(text = ":")
-            TextField(modifier = Modifier.width(70.dp),value = String.format("%02d", min), onValueChange = { if (validateMin(it)) min = it.toInt() }, enabled = enabled )
+            TextField(modifier = Modifier.width(70.dp),value = if(min != -1) min.toString() else "",
+                onValueChange = {val newValue = it.toIntOrNull() // Converts to Int or returns null if input is invalid
+                    if (newValue != null) {
+                        min = it.toInt()
+                        onChangeTime(alarm.copy(min = it.toInt()))
+                    } else {
+                        min = -1
+                    }}, enabled = enabled )
         }
         IconButton(onClick = { onDelete() }) {
             Icon(imageVector = Icons.Filled.Delete, contentDescription = null)

@@ -1,5 +1,8 @@
 package com.example.virgo.alarm
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -17,17 +20,29 @@ class AlarmReceiver : BroadcastReceiver() {
         if (ContextCompat.checkSelfPermission(
                 context, android.Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED) {
+            val channelId = "alarm_channel"
+            val channelName = "Alarm Notifications"
+            val channelDescription = "Channel for alarm notifications"
 
-            // Permission is granted, proceed to show the notification
-            val notification = NotificationCompat.Builder(context, "alarm_channel")
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val notificationChannel = NotificationChannel(channelId, channelName, importance).apply {
+                description = channelDescription
+            }
+
+            // Register the channel with the system
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(notificationChannel)
+
+            val notification = Notification.Builder(context, "alarm_channel")
                 .setContentTitle("Alarm Triggered")
-                .setContentText("It's time!")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentText("Your alarm has gone off!")
+                .setSmallIcon(android.R.drawable.ic_dialog_alert) // You can use your custom icon here
+                .setPriority(Notification.PRIORITY_HIGH)
+                .setAutoCancel(true)
                 .build()
 
-            val notificationManager = NotificationManagerCompat.from(context)
-            notificationManager.notify(1, notification)
+            // Post the notification
+            notificationManager.notify(0, notification)
 
         } else {
             // If permission is not granted, you can choose to show an explanation or handle it accordingly.

@@ -7,6 +7,7 @@ import java.util.Date
 
 @Serializable
 data class Reminder (
+    val id: Int?=null,
     val name: String,
     val dateCreated: Long = Timestamp.now().seconds,
     val duration: Int,

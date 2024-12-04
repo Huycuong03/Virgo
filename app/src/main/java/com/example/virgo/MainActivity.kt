@@ -239,49 +239,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
 
-                // Request the permission
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), // Correct type
-                    1 // Request code
-                )
-            }
-        }
-
-    }
-
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, you can post notifications
-            } else {
-                // Permission denied, you may need to handle it (e.g., show an explanation)
-            }
-        }
     }
 
 
 }
 
-fun setAlarm(context: Context, alarm: Alarm) {
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val intent = Intent(context, AlarmReceiver::class.java).apply {
-        putExtra("ALARM_TIME", alarm.toString())  // Optional: Pass alarm time to receiver
-    }
-
-    val calendar = alarm.toCalendar()
-
-    val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-    // Set the alarm to trigger at the specified time
-    alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
-
-    // Optional: Show a toast for feedback
-    Toast.makeText(context, "Alarm set for ${alarm.toString()}", Toast.LENGTH_SHORT).show()
-}

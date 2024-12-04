@@ -6,8 +6,8 @@ import java.util.Calendar
 
 @Serializable
 data class Alarm (
-    val hour: Int = 8,
-    val min: Int = 35
+    val hour: Int = 12,
+    val min: Int = 30
 ) {
     @SuppressLint("DefaultLocale")
     override fun toString(): String {

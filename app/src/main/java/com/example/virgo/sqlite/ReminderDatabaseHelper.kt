@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import com.example.virgo.model.ecommerce.Product
 import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.example.virgo.model.lib.Alarm
@@ -29,14 +30,14 @@ class ReminderDatabaseHelper(context: Context) :
 
         // Alarm Table
         const val TABLE_ALARMS = "alarms"
-        const val COLUMN_ALARM_ID = "id"
+        const val COLUMN_ALARM_ID = "alarm_id"
         const val COLUMN_ALARM_HOUR = "hour"
-        const val COLUMN_ALARM_MIN = "min"
+        const val COLUMN_ALARM_MIN = "minute"
         const val COLUMN_REMINDER_ID_FK_ALARMS = "reminder_id" // Renamed
 
         // Product Table
         const val TABLE_PRODUCTS = "products"
-        const val COLUMN_PRODUCT_ID = "id"
+        const val COLUMN_PRODUCT_ID = "product_id"
         const val COLUMN_PRODUCT_NAME = "product_name"
         const val COLUMN_PRODUCT_DESCRPT = "product_descrpt"
         const val COLUMN_PRODUCT_AMOUNT = "amount"
@@ -125,7 +126,7 @@ class ReminderDatabaseHelper(context: Context) :
 
 
     fun getAllReminders(db: SQLiteDatabase): List<Reminder> {
-        val reminders = mutableListOf<Reminder>()
+        val reminders = mutableStateListOf<Reminder>()
 
         // Query the reminders table
         val cursor = db.query(
@@ -155,6 +156,7 @@ class ReminderDatabaseHelper(context: Context) :
                 val products = getProductsForReminder(db, reminderId)
 
                 val reminder = Reminder(
+                    id = reminderId,
                     name = name,
                     dateCreated = dateCreated,
                     duration = duration,
@@ -225,6 +227,13 @@ class ReminderDatabaseHelper(context: Context) :
         return products
     }
 
+    fun deleteReminder(reminder: Reminder) {
+        val db = writableDatabase
+        val whereClause = "$COLUMN_REMINDER_ID = ?"
+        val whereArgs = arrayOf(reminder.id.toString())  // Assuming 'id' is the unique identifier for Reminder
+        db.delete(TABLE_REMINDERS, whereClause, whereArgs)
+        db.close()
+    }
 
     fun clearDatabase() {
         val db = writableDatabase
