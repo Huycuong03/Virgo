@@ -1,11 +1,15 @@
 package com.example.virgo.ui.screen.profile
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -13,10 +17,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,9 +38,12 @@ fun EditPersonalScreen(navController: NavController) {
     val viewModel : ProfileViewModel = viewModel()
     val user = viewModel.user.value
     var validationMessage by remember { mutableStateOf("") }
-    val context = LocalContext.current
-    BackHandler {
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) {
+        viewModel.uploadAvatarImage(it)
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -58,7 +65,7 @@ fun EditPersonalScreen(navController: NavController) {
                     tint = Color.White,
                     modifier = Modifier
                         .padding(start = 16.dp)
-                        .clickable {navController.popBackStack()}
+                        .clickable { navController.popBackStack() }
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
@@ -80,14 +87,18 @@ fun EditPersonalScreen(navController: NavController) {
             Box(
                 modifier = Modifier
                     .size(100.dp)
-                    .background(Color.Gray)
-                    .align(Alignment.CenterHorizontally),
+                    .align(Alignment.CenterHorizontally)
+                    .clickable {
+                        singlePhotoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = (stringResource(id = R.string.github_page) + "/drawable/" + (user.avatarImage?:"image_holder.jpg")),
+                    model = user.avatarImage,
                     contentDescription = "Image Description",
-                    modifier = Modifier.size(80.dp),
+                    modifier = Modifier
+                        .size(200.dp)
+                        .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -167,7 +178,7 @@ fun EditPersonalScreen(navController: NavController) {
                             navController.popBackStack()
                             navController.navigate(PersonalInformationRoute)
                                     },
-                        onFailure = { Toast.makeText(context, "Failed to create appointment", Toast.LENGTH_SHORT).show()},
+                        onFailure = { Toast.makeText(navController.context, "Failed to create appointment", Toast.LENGTH_SHORT).show()},
                         onValidationFailure = { message ->
                             validationMessage = message
                         }

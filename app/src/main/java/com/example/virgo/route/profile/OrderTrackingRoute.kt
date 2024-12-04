@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OrderTrackingRoute (
-    val status: OrderStatus = OrderStatus.PROCESSING
+    val status: OrderStatus
 )

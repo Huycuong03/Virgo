@@ -61,7 +61,7 @@ fun ProfileHeader(user: User) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
-            model = (stringResource(id = R.string.github_page) + "/drawable/" + (user.avatarImage?:"image_holder.jpg")),
+            model = user.avatarImage,
             contentDescription = "Image Description",
             modifier = Modifier.size(80.dp)
                 .clip(CircleShape),
@@ -78,7 +78,8 @@ fun OrderSection(onClick: (OrderStatus) -> Unit) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Đơn của tôi", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         LazyRow (
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             items(OrderStatus.entries.toList()) {
                 TextButton(onClick = { onClick(it) }) {

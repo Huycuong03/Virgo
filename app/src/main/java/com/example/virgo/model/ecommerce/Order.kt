@@ -14,5 +14,6 @@ data class Order(
     val status: String? = null,
     val address: Address? = null,
     val payment: Payment? = null,
-    val deliveries: List<Delivery> = emptyList()
+    val deliveries: List<Delivery> = emptyList(),
+    val uid: String? = null
 )
