@@ -2,6 +2,7 @@ package com.example.virgo.ui.screen.home
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,8 +19,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -112,17 +116,7 @@ fun HomeScreen(navController: NavController) {
         ) {
 
 
-            Text(
-                text = "Xem thêm",
-                fontSize = 14.sp,
-                color = Color.Blue,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier
-                    .clickable {
-                        navController.navigate(ReminderListRoute)
-                    }
-                    .align(Alignment.CenterHorizontally)
-            )
+
             Column(modifier = Modifier.fillMaxWidth())
             {
                 Text(
@@ -157,6 +151,23 @@ fun HomeScreen(navController: NavController) {
                         navController.navigate(ProductDetailRoute(it.id.toString()))
                     }
                 }
+            }
+            Button(
+                onClick = {
+                    navController.navigate(ReminderListRoute)
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .border(2.dp, Color.Blue, CircleShape) // Adding border with rounded corners
+                    .padding(12.dp), // Adding padding
+                colors = ButtonDefaults.buttonColors() // Adding background color
+            ) {
+                Text(
+                    text = "Nhac nho",
+                    fontSize = 14.sp,
+                    color = Color.Blue,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
 

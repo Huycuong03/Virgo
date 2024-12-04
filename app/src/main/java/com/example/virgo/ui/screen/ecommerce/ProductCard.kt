@@ -47,7 +47,7 @@ fun ProductCard (product: Product, onClick: (Product) -> Unit) {
                 .background(Color.White)
         ) {
             AsyncImage(
-                model = (stringResource(id = R.string.github_page) + "/drawable/" + (product.images[0])),
+                model = product.images[0],
                 contentDescription = "Image Description",
                 modifier = Modifier.size(120.dp).align(Alignment.CenterHorizontally),
                 contentScale = ContentScale.Crop
