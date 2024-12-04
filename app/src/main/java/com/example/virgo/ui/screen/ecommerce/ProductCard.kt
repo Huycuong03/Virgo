@@ -26,9 +26,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.virgo.R
 import com.example.virgo.model.ecommerce.Product
+import com.example.virgo.route.ecommerce.CartRoute
+import com.example.virgo.viewModel.ecommerce.CartViewModel
+import com.example.virgo.viewModel.ecommerce.ProductDetailViewModel
 
 @Composable
 fun ProductCard (product: Product, onClick: (Product) -> Unit) {
@@ -78,12 +83,13 @@ fun ProductCard (product: Product, onClick: (Product) -> Unit) {
 
             // "Mua" button
             Button(
-                onClick = { /* Add to cart action */ },
+                onClick = {},
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .size(120.dp, 35.dp)
+//                    .size(120.dp, 35.dp)
+                    .fillMaxWidth()
             ) {
-                Text("Add to cart", style = TextStyle(fontSize = 14.sp))
+                Text("Thêm vào giỏ", style = TextStyle(fontSize = 14.sp))
             }
         }
     }
