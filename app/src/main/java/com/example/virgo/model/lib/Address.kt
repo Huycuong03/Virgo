@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 @IgnoreExtraProperties
 data class Address(
+    val default: Boolean? = false,
+    val name: String? = null,
+    val phoneNumber: String? = null,
     val city: String? = null,
     val district: String? = null,
     val ward: String? = null,

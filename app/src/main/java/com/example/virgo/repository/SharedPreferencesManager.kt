@@ -11,6 +11,8 @@ object SharedPreferencesManager {
         if (sharedPreferences == null) {
             sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         }
+
+        saveString("firebase_database", "https://virgo-238d4-default-rtdb.asia-southeast1.firebasedatabase.app")
     }
 
     fun getString(key: String): String? {

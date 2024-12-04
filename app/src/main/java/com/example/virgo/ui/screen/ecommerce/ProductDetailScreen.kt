@@ -1,14 +1,11 @@
 package com.example.virgo.ui.screen.ecommerce
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -17,30 +14,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.example.virgo.R
 import com.example.virgo.model.lib.Review
 import com.example.virgo.route.ecommerce.CartRoute
 import com.example.virgo.ui.theme.ColorAccent
 import com.example.virgo.ui.theme.ColorRating
-import com.example.virgo.ui.theme.ColorWarning
-import com.example.virgo.ui.theme.VirgoTheme
-import com.example.virgo.viewModel.CartViewModel
-import com.example.virgo.viewModel.ProductDetailViewModel
+import com.example.virgo.viewModel.ecommerce.ProductDetailViewModel
 import com.google.firebase.Timestamp
-import java.text.NumberFormat
-import java.util.Locale
+import java.util.Date
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,7 +71,11 @@ fun ProductDetailScreen(id: String, navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { viewModel.addProductToCart() },
+                    onClick = {
+                        viewModel.addProductToCart() {
+                            navController.navigate(CartRoute)
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.teal_200))
                 ) {
                     Text("Thêm vào giỏ", color = Color.White)
@@ -366,7 +359,7 @@ fun ProductReviewScreen(reviews: List<Review>) {
                 name = review.user?.name,
                 rating = review.rating,
                 comment = review.comment,
-                date = Timestamp(review.timestamp?:0,0).toDate().toString()
+                date = Timestamp(review.timestamp?:0, 0).toDate().toString()
             )
 
             Spacer(modifier = Modifier.height(16.dp))

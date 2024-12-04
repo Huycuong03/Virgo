@@ -13,3 +13,4 @@ data class Review(
     val comment: String? = null,
     val timestamp: Long? = null
 )
+

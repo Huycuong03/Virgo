@@ -44,7 +44,7 @@ class AppointmentBookingViewModel : ViewModel() {
         _selectedDate.value = date
         _selectedSession.value = session
     }
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+
     fun createAppointment(onSuccess: () -> Unit, onFailure: () -> Unit, onValidationFailure: (String) -> Unit){
         if (_reason.value.isBlank()) {
             onValidationFailure("Lý do không được để trống.")

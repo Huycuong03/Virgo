@@ -7,25 +7,12 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -37,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -44,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.virgo.alarm.AlarmReceiver
 import com.example.virgo.model.lib.Alarm
+import com.example.virgo.model.ecommerce.OrderStatus
 import com.example.virgo.model.lib.NavItem
 import com.example.virgo.model.lib.Reminder
 import com.example.virgo.repository.SharedPreferencesManager
@@ -62,9 +51,13 @@ import com.example.virgo.route.appointment.FacilityDetailRoute
 import com.example.virgo.route.appointment.SearchFacilityRoute
 import com.example.virgo.route.ecommerce.CartRoute
 import com.example.virgo.route.ecommerce.CheckOutRoute
-import com.example.virgo.route.ecommerce.CompletedOrderRoute
+import com.example.virgo.route.profile.OrderTrackingRoute
 import com.example.virgo.route.ecommerce.PrescriptionRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
+import com.example.virgo.route.profile.ChangeAddressRoute
+import com.example.virgo.route.profile.EditPersonalRoute
+import com.example.virgo.route.profile.ManageAddressRoute
+import com.example.virgo.route.profile.PersonalInformationRoute
 import com.example.virgo.route.profile.ProfileRoute
 import com.example.virgo.route.reminder.AddFormRoute
 import com.example.virgo.route.reminder.ReminderListRoute
@@ -81,19 +74,22 @@ import com.example.virgo.ui.screen.ecommerce.CartScreen
 import com.example.virgo.ui.screen.ecommerce.CheckOutScreen
 import com.example.virgo.ui.screen.ecommerce.UploadPrescriptionScreen
 import com.example.virgo.ui.screen.profile.AppointmentHistoryScreen
+import com.example.virgo.ui.screen.profile.ChangeAddressScreen
+import com.example.virgo.ui.screen.profile.EditPersonalScreen
+import com.example.virgo.ui.screen.profile.ManageAddressScreen
 import com.example.virgo.ui.screen.profile.ProfileScreen
 import com.example.virgo.ui.screen.reminder.AddFormScreen
 import com.example.virgo.ui.screen.reminder.ReminderListScreen
 import com.example.virgo.ui.screen.reminder.ReminderTimeScreen
 import com.example.virgo.ui.screen.reminder.SearchToReminderScreen
 import com.example.virgo.ui.screen.telemedicine.TelemedicineScreen
-import com.example.virgo.ui.screen.tracking.ConpletedOrder
+import com.example.virgo.ui.screen.profile.OrderTrackingScreen
+import com.example.virgo.ui.screen.profile.PersonalInforScreen
 import com.example.virgo.ui.theme.VirgoTheme
 import kotlin.reflect.typeOf
 
 
 class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -189,7 +185,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<ArticleRoute> {
                             val html: String = it.toRoute<ArticleRoute>().html
-                            ArticleScreen(html)
+                            ArticleScreen(html, navController)
                         }
                         composable<FacilityDetailRoute> {
                             val id = it.toRoute<FacilityDetailRoute>().id
@@ -209,13 +205,32 @@ class MainActivity : ComponentActivity() {
                             ProfileScreen(navController)
                         }
                         composable<PrescriptionRoute> {
-                            UploadPrescriptionScreen()
+                            UploadPrescriptionScreen(navController)
                         }
                         composable<CheckOutRoute> {
-                            CheckOutScreen()
+                            val cartItemIdList = it.toRoute<CheckOutRoute>().cartItemIdList
+                            CheckOutScreen(cartItemIdList, navController)
                         }
-                        composable<CompletedOrderRoute> {
-                            ConpletedOrder(navController)
+                        composable<OrderTrackingRoute> (
+                            typeMap = mapOf(
+                                typeOf<OrderStatus>() to NavType.EnumType(OrderStatus::class.java)
+                            )
+                        ) {
+                            val status = it.toRoute<OrderTrackingRoute>().status
+                            OrderTrackingScreen(status, navController)
+                        }
+                        composable<PersonalInformationRoute> {
+                            PersonalInforScreen(navController)
+                        }
+                        composable<EditPersonalRoute> {
+                            EditPersonalScreen(navController)
+                        }
+                        composable<ManageAddressRoute> {
+                            ManageAddressScreen(navController)
+                        }
+                        composable<ChangeAddressRoute> {
+                            val index = it.toRoute<ChangeAddressRoute>().index
+                            ChangeAddressScreen(navController, index)
                         }
                         composable<ReminderListRoute> {
                             ReminderListScreen(navController)

@@ -1,4 +1,4 @@
-package com.example.virgo.viewModel
+package com.example.virgo.viewModel.ecommerce
 
 import android.util.Log
 import androidx.compose.runtime.State
@@ -7,75 +7,51 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import com.example.virgo.model.User
 import com.example.virgo.model.ecommerce.Packaging
 import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.virgo.model.ecommerce.Product
 import com.example.virgo.repository.SharedPreferencesManager
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.getValue
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.toObject
 
 class CartViewModel : ViewModel() {
-    private val firestore = FirebaseFirestore.getInstance()
+    private val ref = FirebaseDatabase.getInstance(SharedPreferencesManager.getString("firebase_database")?:"").getReference("cart").child(SharedPreferencesManager.getUID())
     private val _productsWithQuantities = mutableStateListOf<ProductWithQuantity>()
     private val _totalSum = mutableDoubleStateOf(0.0)
     private val _selectAllChecked = mutableStateOf(false)
 
-    val productsWithQuantities: State<List<ProductWithQuantity>>
-        get() = derivedStateOf {
-            _productsWithQuantities.toList()
-        }
+    val productsWithQuantities: State<List<ProductWithQuantity>> get() = derivedStateOf {
+        _productsWithQuantities.toList()
+    }
     val totalSum: State<Double> get() = _totalSum
     val selectAllChecked: State<Boolean> get() = _selectAllChecked
 
     init {
-        fetchProductsFromFirestore()
+        init()
     }
 
-    private fun fetchProductsFromFirestore() {
-        firestore.collection("users").document(SharedPreferencesManager.getUID())
-            .get()
-            .addOnSuccessListener { document ->
-                // Check if document exists and contains a cart
-                if (document.exists()) {
-                    val cartList = document.get("cart") as? List<Map<String, Any>>
-                    if (cartList != null) {
-                        val fetchedProducts = cartList.mapNotNull { cartItem ->
-                            val product = cartItem["product"] as? Map<String, Product>
-                            val quantity = (cartItem["quantity"] as? Long)?.toInt() ?: 1
-
-                            // Convert product data to Product class
-                            product?.let {
-                                ProductWithQuantity(
-                                    product = Product(
-                                        id = it["id"] as? String,
-                                        name = it["name"] as? String,
-                                        price = (it["price"] as? Long)?.toFloat(),
-                                        images = (it["images"] as? List<String>).orEmpty(),
-                                        packaging = (it["packaging"] as? Map<String, Packaging>)?.let { p ->
-                                            Packaging(
-                                                type = p["type"] as? String
-                                            )
-                                        }
-                                    ),
-                                    quantity = quantity
-                                )
-                            }
-                        }
-
-                        // Update the products list
-                        _productsWithQuantities.clear()
-                        _productsWithQuantities.addAll(fetchedProducts)
-                        calculateTotalSum()
-                    }
-                }
+    private fun init() {
+        ref.addValueEventListener(object: ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                _productsWithQuantities.clear()
+                _productsWithQuantities.addAll(snapshot.children.mapNotNull { it.getValue<ProductWithQuantity>()?.copy(id = it.key) })
+                calculateTotalSum()
             }
-            .addOnFailureListener { exception ->
-                println("Error fetching products: ${exception.message}")
+
+            override fun onCancelled(error: DatabaseError) {
             }
+        })
     }
 
     private fun calculateTotalSum() {
-        _totalSum.value = _productsWithQuantities.filter { it.selected == true }.sumOf {
+        _totalSum.doubleValue = _productsWithQuantities.filter { it.selected == true }.sumOf {
             val price = it.product?.price ?: 0f
             price.toDouble() * (it.quantity ?: 1)
         }
@@ -103,39 +79,20 @@ class CartViewModel : ViewModel() {
         calculateTotalSum()
     }
 
-    fun increaseQuantity(productId: String) {
-        _productsWithQuantities.map { productWithQuantity ->
-            if (productWithQuantity.product?.id == productId) {
-                val updatedProduct = productWithQuantity.copy(quantity = productWithQuantity.quantity?.plus(1))
-                _productsWithQuantities[_productsWithQuantities.indexOf(productWithQuantity)] = updatedProduct
-            }
-        }
-        calculateTotalSum()
+    fun updateQuantity(cartItem: ProductWithQuantity, increase: Boolean = true) {
+        ref.child(cartItem.id?:"").updateChildren(
+            hashMapOf<String, Any?>(
+                "quantity" to (cartItem.quantity?.let { it + if (increase) 1 else -1 })
+            )
+        )
     }
 
-    // Decrease quantity for a product
-    fun decreaseQuantity(productId: String) {
-        _productsWithQuantities.map { productWithQuantity ->
-            if (productWithQuantity.product?.id == productId && productWithQuantity.quantity ?: 0 > 1) {
-                val updatedProduct = productWithQuantity.copy(quantity = productWithQuantity.quantity?.minus(1))
-                _productsWithQuantities[_productsWithQuantities.indexOf(productWithQuantity)] = updatedProduct
-            }
-        }
-        calculateTotalSum()
-    }
     fun removeProductFromCart(cartItem: ProductWithQuantity) {
-        val userDocRef = firestore.collection("users").document(SharedPreferencesManager.getUID())
-
-        _productsWithQuantities.remove(cartItem)
-        userDocRef.update("cart", FieldValue.delete())
-            .addOnSuccessListener {
-                Log.d("CartViewModel", "Product successfully removed from Firestore!")
-            }
-            .addOnFailureListener { e ->
-                Log.w("CartViewModel", "Error removing product from Firestore", e)
-            }
-        calculateTotalSum()
+        ref.child(cartItem.id?:"").setValue(null)
     }
 
+    fun getSelectedCartItemIds(): List<String> {
+        return _productsWithQuantities.filter { it.selected?: false }.mapNotNull { it.id }
+    }
 
 }

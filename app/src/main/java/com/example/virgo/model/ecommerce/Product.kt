@@ -9,7 +9,6 @@ import java.util.Locale
 @Serializable
 @IgnoreExtraProperties
 data class Product(
-    @DocumentId
     val id: String? = null,
     val name: String? = null,
     val stockQuantity: Int? = null,
