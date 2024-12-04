@@ -41,7 +41,7 @@ fun RowItem (
             }
     ) {
         AsyncImage(
-            model = (stringResource(id = R.string.github_page) + "/drawable/" + (image?:"image_holder.jpg")),
+            model = image?:(stringResource(id = R.string.github_page) + "/drawable/image_holder.jpg"),
             contentDescription = "Image Description",
             modifier = Modifier.size(80.dp),
             contentScale = ContentScale.Crop

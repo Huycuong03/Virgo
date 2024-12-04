@@ -94,7 +94,8 @@ fun ProductDetailScreen(id: String, navController: NavController) {
                 // Product Images
                 item {
                     AsyncImage(
-                        model = stringResource(R.string.github_page) +"/drawable/"+ (product.images.getOrNull(0)?:"image_holder.jpg"),
+                        model = product.images.getOrNull(0)
+                            ?: (stringResource(R.string.github_page) + "/drawable/image_holder.jpg"),
                         contentDescription = null,
                         contentScale = ContentScale.FillWidth,
                     )
