@@ -1,16 +1,22 @@
 package com.example.virgo.viewModel.profile
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import coil.compose.AsyncImagePainter
 import com.example.virgo.model.User
+import com.example.virgo.model.lib.Message
 import com.example.virgo.repository.SharedPreferencesManager
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
+import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 
 class ProfileViewModel: ViewModel() {
+    private val stg = FirebaseStorage.getInstance().getReference("images")
+    private val db = FirebaseFirestore.getInstance().collection("users").document(SharedPreferencesManager.getUID())
     private val _user = mutableStateOf(User())
     val user: State<User> get() = _user
 
@@ -24,7 +30,20 @@ class ProfileViewModel: ViewModel() {
                 }
             }
     }
-    fun updateUser( onSuccess: () -> Unit, onFailure: () -> Unit,onValidationFailure: (String) -> Unit) {
+
+    fun uploadAvatarImage(image: Uri?) {
+        image?.let {
+            val fileName = UUID.randomUUID().toString()
+            val task = stg.child(fileName).putFile(image)
+            task.addOnSuccessListener {
+                stg.child(fileName).downloadUrl.addOnSuccessListener { url ->
+                    _user.value = _user.value.copy(avatarImage = url.toString())
+                }
+            }
+        }
+    }
+
+    fun updateUser(onSuccess: () -> Unit, onFailure: () -> Unit, onValidationFailure: (String) -> Unit) {
         val currentUser = _user.value
 
         if (currentUser.name.isNullOrEmpty()) {
@@ -40,18 +59,12 @@ class ProfileViewModel: ViewModel() {
             return
         }
 
-        val userRef = FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(SharedPreferencesManager.getUID()) // UID lấy từ SharedPreferences
-
-        userRef.set(currentUser)
+        db.set(currentUser)
             .addOnSuccessListener {
                 onSuccess()
-                Log.d("ProfileViewModel", "User updated successfully")
             }
             .addOnFailureListener { exception ->
                 onFailure()
-                Log.e("ProfileViewModel", "Error updating user: ", exception)
             }
     }
 

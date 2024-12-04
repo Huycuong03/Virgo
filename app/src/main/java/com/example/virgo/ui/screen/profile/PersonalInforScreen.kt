@@ -5,12 +5,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -31,8 +33,7 @@ import com.example.virgo.viewModel.profile.ProfileViewModel
 fun PersonalInforScreen(navController: NavController) {
     val viewModel : ProfileViewModel = viewModel()
     val user = viewModel.user.value
-    BackHandler {
-    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -103,9 +104,11 @@ fun ProfileContent(name: String, phoneNumber: String, email: String, gender: Boo
                 .size(100.dp)
         ) {
             AsyncImage(
-                model = (stringResource(id = R.string.github_page) + "/drawable/" + image),
+                model = image,
                 contentDescription = "Image Description",
-                modifier = Modifier.size(80.dp),
+                modifier = Modifier
+                    .size(200.dp)
+                    .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
         }

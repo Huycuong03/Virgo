@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -18,25 +17,30 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.virgo.model.ecommerce.Order
 import com.example.virgo.model.ecommerce.OrderStatus
+import com.example.virgo.viewModel.profile.OrderTrackingViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderTrackingScreen(status: OrderStatus, navController: NavController) {
-    var selectedStatus by remember { mutableStateOf(status) }
+    val viewMode: OrderTrackingViewModel = viewModel()
+    val selectedStatus = viewMode.selectedStatus.value
+    val orderListByStatus = viewMode.orderListByStatus.value
+
+    LaunchedEffect(key1 = status) {
+        viewMode.onSelectStatus(status)
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -56,7 +60,7 @@ fun OrderTrackingScreen(status: OrderStatus, navController: NavController) {
             OrderStatus.entries.forEach { status ->
                 Tab(
                     selected = selectedStatus == status,
-                    onClick = { selectedStatus = status },
+                    onClick = { viewMode.onSelectStatus(status) },
                     text = {
                         Text(
                             text = status.text,
@@ -70,17 +74,26 @@ fun OrderTrackingScreen(status: OrderStatus, navController: NavController) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-//        when (selectedStatus) {
-//            OrderStatus.TO_PAY -> ToPay()
-//            OrderStatus.PROCESSING -> ToShip()
-//            OrderStatus.COMPLETED -> Completed()
-//            OrderStatus.CANCELED -> Canceled()
-//        }
+        OrderTracking(orderList = orderListByStatus) {
+            when (selectedStatus) {
+                OrderStatus.PROCESSING -> Button(onClick = { viewMode.updateStatus(it.copy(status = OrderStatus.CANCELED.text)) }) {
+                    Text(text = "Hủy")
+                }
+                OrderStatus.ON_DELIVERY -> {}
+                OrderStatus.COMPLETED -> Button(onClick = { /*TODO*/ }) {
+                    Text(text = "Mua lại")
+                }
+                OrderStatus.CANCELED -> Button(onClick = { /*TODO*/ }) {
+                    Text(text = "Mua lại")
+                }
+            }
+        }
+
     }
 }
 
 @Composable
-fun OrderTracking(orderList: List<Order>, action: @Composable () -> Unit) {
+fun OrderTracking(orderList: List<Order>, action: @Composable (Order) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -97,7 +110,7 @@ fun OrderTracking(orderList: List<Order>, action: @Composable () -> Unit) {
 }
 
 @Composable
-fun OrderItem(order: Order, action: @Composable () -> Unit) {
+fun OrderItem(order: Order, action: @Composable (Order) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,13 +120,7 @@ fun OrderItem(order: Order, action: @Composable () -> Unit) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Đơn hàng ${order.timestamp?.toDate()}", fontWeight = FontWeight.Bold)
-                Text(text = "${order.status}", color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)
-            }
+            Text(text = "Đơn hàng ${order.timestamp?.toDate().toString()}", fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = "#${order.id}", color = Color.Gray, fontSize = 12.sp)
             Spacer(modifier = Modifier.height(8.dp))
@@ -125,7 +132,7 @@ fun OrderItem(order: Order, action: @Composable () -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Thành tiền: ${order.payment?.total}", fontWeight = FontWeight.Bold)
-                action()
+                action(order)
             }
         }
     }

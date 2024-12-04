@@ -6,9 +6,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.virgo.model.ecommerce.Order
+import com.example.virgo.model.ecommerce.OrderStatus
 import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.example.virgo.model.lib.Payment
 import com.example.virgo.repository.SharedPreferencesManager
+import com.google.firebase.Timestamp
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.getValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,12 +38,14 @@ class CheckOutViewModel: ViewModel() {
     fun checkout(total: Float, callback: () -> Unit) {
         db.add(
             Order(
+                timestamp = Timestamp.now(),
                 products = _cartItems,
-                status = "to-pay",
+                status = OrderStatus.PROCESSING.text,
                 payment = Payment(
                     method = "COD",
                     total = total
-                )
+                ),
+                uid = SharedPreferencesManager.getUID()
             )
         ).addOnSuccessListener {
             for (cartItem in _cartItems) {
