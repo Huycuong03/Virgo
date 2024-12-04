@@ -1,6 +1,7 @@
 package com.example.virgo.ui.screen.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -20,7 +21,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.virgo.model.User
 import com.example.virgo.model.ecommerce.OrderStatus
+import com.example.virgo.route.appointment.AppointmentHistoryRoute
+import com.example.virgo.route.ecommerce.PrescriptionRoute
+import com.example.virgo.route.profile.ManageAddressRoute
 import com.example.virgo.route.profile.OrderTrackingRoute
+import com.example.virgo.route.profile.PersonalInfoRoute
 import com.example.virgo.viewModel.profile.ProfileViewModel
 
 @Composable
@@ -36,7 +41,9 @@ fun ProfileScreen(navController: NavController) {
         OrderSection() {
             navController.navigate(OrderTrackingRoute(status = it))
         }
-        AccountSection()
+        AccountSection() {
+            navController.navigate(it)
+        }
     }
 }
 
@@ -81,23 +88,32 @@ fun OrderSection(onClick: (OrderStatus) -> Unit) {
 }
 
 @Composable
-fun AccountSection() {
+fun AccountSection(onClick: (Any) -> Unit) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Tài khoản", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Spacer(modifier = Modifier.height(8.dp))
-        AccountItem(icon = Icons.Default.Person, label = "Thông tin cá nhân")
-        AccountItem(icon = Icons.Default.LocationOn, label = "Quản lý sổ địa chỉ")
-        AccountItem(icon = Icons.Default.DateRange, label = "Lịch sử đặt hẹn")
-        AccountItem(icon = Icons.Default.Favorite, label = "Đơn thuốc của tôi")
+        AccountItem(icon = Icons.Default.Person, label = "Thông tin cá nhân") {
+            onClick(PersonalInfoRoute)
+        }
+        AccountItem(icon = Icons.Default.LocationOn, label = "Quản lý địa chỉ") {
+            onClick(ManageAddressRoute)
+        }
+        AccountItem(icon = Icons.Default.DateRange, label = "Lịch sử đặt hẹn") {
+            onClick(AppointmentHistoryRoute)
+        }
+        AccountItem(icon = Icons.Default.Favorite, label = "Đơn thuốc của tôi") {
+            onClick(PrescriptionRoute)
+        }
     }
 }
 
 @Composable
-fun AccountItem(icon: ImageVector, label: String) {
+fun AccountItem(icon: ImageVector, label: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

@@ -17,10 +17,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.virgo.R
+import com.example.virgo.route.profile.EditPersonalRoute
+import com.example.virgo.viewModel.profile.ProfileViewModel
 
 @Composable
-fun PersonalInforScreen() {
+fun PersonalInforScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,7 +46,7 @@ fun PersonalInforScreen() {
                     tint = Color.White,
                     modifier = Modifier
                         .padding(start = 16.dp)
-                        .clickable { }
+                        .clickable { navController.popBackStack() }
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
@@ -55,12 +59,16 @@ fun PersonalInforScreen() {
                 Spacer(modifier = Modifier.weight(1f))
             }
         }
-        ProfileContent()
+        ProfileContent(){
+            navController.navigate(EditPersonalRoute)
+        }
     }
 }
 
 @Composable
-fun ProfileContent() {
+fun ProfileContent(onClick: () -> Unit) {
+    val viewModel:ProfileViewModel= viewModel()
+    val user = viewModel.user.value
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,22 +93,26 @@ fun ProfileContent() {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        ProfileInfoRow(label = "Họ và tên", value = "Trần Cường")
+        ProfileInfoRow(label = "Họ và tên", value = user.name?:"")
         HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
-        ProfileInfoRow(label = "Số điện thoại", value = "0389 214 919")
+        ProfileInfoRow(label = "Số điện thoại", value = user.phoneNumber?:"")
         HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
-        ProfileInfoRow(label = "Email", value = "abc@gmail.com")
+        ProfileInfoRow(label = "Email", value = user.email?:"")
         HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
-        ProfileInfoRow(label = "Giới tính", value = "Nam")
+        if(user.gender == true) {
+            ProfileInfoRow(label = "Giới tính", value = "Nam")
+        }else{
+            ProfileInfoRow(label = "Giới tính", value = "Nữ")
+        }
         HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
-        ProfileInfoRow(label = "Ngày sinh", value = "30/07/2003")
+        ProfileInfoRow(label = "Mã khách hàng", value = user.id?:"")
         HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
 
         Spacer(modifier = Modifier.weight(1f))
 
         // Edit Information button
         Button(
-            onClick = { /* TODO: Handle edit action */ },
+            onClick = { onClick() },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3F2FD)),
             modifier = Modifier
                 .fillMaxWidth()
@@ -139,10 +151,4 @@ fun ProfileInfoRow(label: String, value: String, isLink: Boolean = false) {
             textAlign = TextAlign.End
         )
     }
-}
-
-@Preview (showBackground = true)
-@Composable
-fun PersonalPreview(){
-    PersonalInforScreen()
 }

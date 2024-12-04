@@ -1,0 +1,175 @@
+package com.example.virgo.ui.screen.profile
+
+import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.virgo.R
+import com.example.virgo.viewModel.profile.ProfileViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditPersonalScreen(navController: NavController) {
+    val viewModel:ProfileViewModel= viewModel()
+    val user = viewModel.user.value
+    var id = user.id
+    var name = user.name
+    var gender = user.gender
+    var genderSelected by remember { mutableStateOf<Boolean?>(null) }
+    var phone = user.phoneNumber
+    var email = user.email
+    var image = user.avatarImage
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5F5F5)) // Background color
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF2196F3)) // Top bar color
+                .padding(vertical = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .clickable {navController.popBackStack() }
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = "Sửa thông tin cá nhân",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // Profile Picture
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(Color.Gray)
+                    .align(Alignment.CenterHorizontally),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(painter = painterResource(id = R.drawable.avatar), contentDescription = null)
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "Thay đổi ảnh đại diện",
+                fontSize = 14.sp,
+                modifier = Modifier.align(Alignment.CenterHorizontally).clickable{ }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = id.toString(),
+                onValueChange = { id = it },
+                label = { Text("Mã khách hàng") },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = MaterialTheme.typography.bodySmall,
+                enabled = false
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Name Field
+            OutlinedTextField(
+                value = name.toString(),
+                onValueChange = { name = it },
+                label = { Text("Họ và tên") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Gender Selection
+            Text(text = "Giới tính")
+            Row {
+                RadioButton(
+                    selected = (genderSelected  == true),
+                    onClick = {
+                        genderSelected = true
+                        gender = genderSelected
+                    },
+                )
+                Text(text = "Nam", modifier = Modifier.align(Alignment.CenterVertically))
+                Spacer(modifier = Modifier.width(8.dp))
+                RadioButton(
+                    selected = (genderSelected == false),
+                    onClick = {
+                        genderSelected = false
+                        gender = genderSelected
+                    }
+                )
+                Text(text = "Nữ", modifier = Modifier.align(Alignment.CenterVertically))
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Phone Field
+            OutlinedTextField(
+                value = phone.toString(),
+                onValueChange = { phone = it },
+                label = { Text("Số điện thoại") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Email Field
+            OutlinedTextField(
+                value = email.toString(),
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    viewModel.onSave(user)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Cập nhật thông tin")
+            }
+        }
+    }
+}
