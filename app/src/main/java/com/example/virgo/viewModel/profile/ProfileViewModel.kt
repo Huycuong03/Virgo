@@ -33,6 +33,9 @@ class ProfileViewModel: ViewModel() {
 
     fun uploadAvatarImage(image: Uri?) {
         image?.let {
+            stg.child("image_holder.jpg").downloadUrl.addOnSuccessListener { url ->
+                _user.value = _user.value.copy(avatarImage = url.toString())
+            }
             val fileName = UUID.randomUUID().toString()
             val task = stg.child(fileName).putFile(image)
             task.addOnSuccessListener {

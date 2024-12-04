@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.draw.clip
@@ -24,6 +25,7 @@ import androidx.navigation.NavController
 import com.example.virgo.R
 import com.example.virgo.model.appointment.Appointment
 import com.example.virgo.route.HomeRoute
+import com.example.virgo.route.appointment.AppointmentHistoryRoute
 import com.example.virgo.viewModel.appointment.AppointmentHistoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,8 +57,10 @@ fun AppointmentHistoryScreen(
                 title = { Text("Lịch sử đặt hẹn") },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF1F5FB)),
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigate(HomeRoute) }) {
-                        Icon(Icons.Filled.Home, contentDescription = "Home")
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Home")
                     }
                 }
             )

@@ -34,12 +34,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavController
 import com.example.virgo.ui.theme.VirgoTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UploadPrescriptionScreen() {
+fun UploadPrescriptionScreen(navController: NavController) {
     var prescriptionText by remember { mutableStateOf("") }
 
     Scaffold(
@@ -47,7 +48,7 @@ fun UploadPrescriptionScreen() {
             TopAppBar(
                 title = { Text("Upload Prescription") },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle back action */ }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
@@ -92,13 +93,5 @@ fun UploadPrescriptionScreen() {
                 Text("Submit Prescription")
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewUploadPrescriptionScreen() {
-    VirgoTheme {
-        UploadPrescriptionScreen()
     }
 }
