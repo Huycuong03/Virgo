@@ -42,7 +42,6 @@ class ChangeAddressViewModel:ViewModel() {
         db.update("addresses", FieldValue.arrayRemove(_originalAddress)).addOnSuccessListener {
             db.update("addresses", FieldValue.arrayUnion(_address.value)).addOnSuccessListener {
                 callback()
-
             }
         }
     }
