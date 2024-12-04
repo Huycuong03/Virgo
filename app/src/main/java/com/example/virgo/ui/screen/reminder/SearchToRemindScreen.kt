@@ -1,10 +1,12 @@
 package com.example.virgo.ui.screen.reminder
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,103 +15,137 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.virgo.model.ecommerce.Product
+import com.example.virgo.route.reminder.AddFormRoute
+import com.example.virgo.ui.screen.lib.NavIcon
+import com.example.virgo.ui.screen.lib.TopBar
+import com.example.virgo.viewModel.SearchViewModel
 
 @Composable
-fun SearchToReminderScreen(onAddToReminder: (Product) -> Unit) {
-    val products = listOf(
-        Product("Thực phẩm bảo vệ sức khỏe G-TEEN", "Hỗ trợ phát triển cho bé gái giai đoạn dậy thì"),
-        Product("SIRO G+ Kenko", "Hỗ trợ tiêu hóa và tăng cường sức khỏe"),
-        Product("Siro Grow Gold G&P", "Giúp ăn ngon, khắc phục tình trạng biếng ăn"),
-        Product("Cốm Trí Não G-Brain", "Bổ sung dưỡng chất tốt cho trí não"),
-        Product("Siro Grow Nano G&P", "Giúp trẻ phát triển hệ xương chắc khỏe")
-    )
-
-    var searchText by remember { mutableStateOf("") }
-    val filteredProducts = if (searchText.isEmpty()) {
-        emptyList()
-    } else {
-        products.filter { it.name.contains(searchText, ignoreCase = true) }
-    }
+fun SearchToReminderScreen(navController: NavController) {
+    val viewModel: SearchViewModel = viewModel()
+    val searchText = viewModel.searchText.value
+    val productResultList = viewModel.productResultList.value
+    val addedProductID = viewModel.addedProductID.value
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(
-                onClick = { /* Handle back navigation */ },
-                modifier = Modifier
-                    .padding(end = 8.dp) // Space from screen edge
-                    .size(30.dp))
-            {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(20.dp)
-                )
+        // Top bar with search functionality
+        TopBar(
+            leadingIcon = {
+                NavIcon {
+                    navController.popBackStack()
+                }
+            },
+            title = {
+                com.example.virgo.ui.screen.lib.SearchBar(query = searchText,
+                    trailingIcon = {
+                        if (searchText.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.onChangeSearchText("") }) {
+                                Icon(Icons.Default.Close, contentDescription = null)
+                            }
+                        }
+                    }) {
+                    viewModel.onChangeSearchText(it)
+                }
+            },
+            actions = {}
+        )
+
+        // Search Results
+        if (searchText.isNotEmpty()) {
+            if (productResultList.isEmpty()) {
+                // No results found
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "No results",
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Không tìm thấy sản phẩm nào phù hợp",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        items(productResultList) { product ->
+                            ProductRow(
+                                product = product,
+                                onAddToReminder = { addedProduct ->
+                                    if (!addedProductID.contains(addedProduct.id)) {
+                                        viewModel.addProduct(addedProduct)
+                                    }
+                                }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp)) // Optional spacing above the button
+
+                    Button(
+                        onClick = {
+
+                            Log.d("Size", addedProductID.size.toString())
+                            navController.navigate(AddFormRoute(addedProductID))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Tiếp Tục")
+                    }
+                }
+
             }
-            TextField(
-                value = searchText,
-                onValueChange = { searchText = it },
-                placeholder = { Text("Nhập tên thuốc...") },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Product list
-        if (filteredProducts.isEmpty()) {
+        } else {
+            // Prompt to start searching
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 5.dp),
+                    .padding(top = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "No results",
+                    contentDescription = "Start searching",
                     modifier = Modifier.size(64.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = if (searchText.isEmpty()) {
-                        "Bắt đầu tìm kiếm sản phẩm"
-                    } else {
-                        "Không tìm thấy sản phẩm nào phù hợp"
-                    },
+                    text = "Nhập từ khóa để tìm kiếm sản phẩm",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
-        } else {
-            LazyColumn {
-                items(filteredProducts) { product ->
-                    ProductRow(product = product, onAddToReminder = onAddToReminder)
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))  // This ensures the button stays at the bottom
-        Button(
-            onClick = { /* Handle continue action */ },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Tiếp tục")
         }
     }
 }
 
 
-
 @Composable
 fun ProductRow(product: Product, onAddToReminder: (Product) -> Unit) {
+    val isAdded = remember { mutableStateOf(false) } // Track if the product is added
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -118,29 +154,34 @@ fun ProductRow(product: Product, onAddToReminder: (Product) -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                product.name,
-                style = MaterialTheme.typography.bodyLarge, // Updated style
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                product.description,
-                style = MaterialTheme.typography.bodyMedium, // Updated style
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            product.name?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            product.description?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
-        Button(onClick = { onAddToReminder(product) }) {
-            Text("Thêm")
+        Button(
+            onClick = {
+                if (!isAdded.value) {
+                    onAddToReminder(product) // Add product to reminder list
+                    isAdded.value = true // Disable button after clicking
+                }
+            },
+            enabled = !isAdded.value // Disable button if already added
+        ) {
+            Text(if (isAdded.value) "Đã thêm" else "Thêm")
         }
     }
 }
 
-data class Product(val name: String, val description: String)
-
-@Preview(showBackground = true)
-@Composable
-fun SearchRemindPreview(){
-    SearchToReminderScreen(onAddToReminder = {})
-}

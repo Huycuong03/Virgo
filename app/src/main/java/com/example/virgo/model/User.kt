@@ -4,7 +4,9 @@ import com.example.virgo.model.ecommerce.ProductWithQuantity
 import com.example.virgo.model.lib.Address
 import com.google.firebase.database.IgnoreExtraProperties
 import com.google.firebase.firestore.DocumentId
+import kotlinx.serialization.Serializable
 
+@Serializable
 @IgnoreExtraProperties
 data class User(
     @DocumentId

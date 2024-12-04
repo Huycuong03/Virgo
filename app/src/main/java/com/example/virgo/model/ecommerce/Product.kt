@@ -3,9 +3,10 @@ package com.example.virgo.model.ecommerce
 import com.example.virgo.model.lib.Review
 import com.google.firebase.database.IgnoreExtraProperties
 import com.google.firebase.firestore.DocumentId
+import kotlinx.serialization.Serializable
 import java.text.NumberFormat
 import java.util.Locale
-
+@Serializable
 @IgnoreExtraProperties
 data class Product(
     val id: String? = null,

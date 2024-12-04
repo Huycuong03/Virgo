@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 fun TopBar(
     leadingIcon: @Composable () -> Unit,
     title: @Composable () -> Unit,
-    actions: @Composable () -> Unit
+    actions: @Composable () -> Unit = {}
 ) {
     Row (
         verticalAlignment = Alignment.CenterVertically,
