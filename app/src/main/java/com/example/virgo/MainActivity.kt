@@ -40,7 +40,9 @@ import com.example.virgo.route.ecommerce.CheckOutRoute
 import com.example.virgo.route.profile.OrderTrackingRoute
 import com.example.virgo.route.ecommerce.PrescriptionRoute
 import com.example.virgo.route.ecommerce.ProductDetailRoute
+import com.example.virgo.route.profile.ChangeAddressRoute
 import com.example.virgo.route.profile.EditPersonalRoute
+import com.example.virgo.route.profile.ManageAddressRoute
 import com.example.virgo.route.profile.PersonalInformationRoute
 import com.example.virgo.route.profile.ProfileRoute
 import com.example.virgo.route.search.SearchRoute
@@ -54,7 +56,9 @@ import com.example.virgo.ui.screen.ecommerce.CartScreen
 import com.example.virgo.ui.screen.ecommerce.CheckOutScreen
 import com.example.virgo.ui.screen.ecommerce.UploadPrescriptionScreen
 import com.example.virgo.ui.screen.profile.AppointmentHistoryScreen
+import com.example.virgo.ui.screen.profile.ChangeAddressScreen
 import com.example.virgo.ui.screen.profile.EditPersonalScreen
+import com.example.virgo.ui.screen.profile.ManageAddressScreen
 import com.example.virgo.ui.screen.profile.ProfileScreen
 import com.example.virgo.ui.screen.telemedicine.TelemedicineScreen
 import com.example.virgo.ui.screen.profile.OrderTrackingScreen
@@ -163,7 +167,7 @@ class MainActivity : ComponentActivity() {
                             ProfileScreen(navController)
                         }
                         composable<PrescriptionRoute> {
-                            UploadPrescriptionScreen()
+                            UploadPrescriptionScreen(navController)
                         }
                         composable<CheckOutRoute> {
                             val cartItemIdList = it.toRoute<CheckOutRoute>().cartItemIdList
@@ -182,6 +186,13 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<EditPersonalRoute> {
                             EditPersonalScreen(navController)
+                        }
+                        composable<ManageAddressRoute> {
+                            ManageAddressScreen(navController)
+                        }
+                        composable<ChangeAddressRoute> {
+                            val index = it.toRoute<ChangeAddressRoute>().index
+                            ChangeAddressScreen(navController, index)
                         }
                     }
                 }
